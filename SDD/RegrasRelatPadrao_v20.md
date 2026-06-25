@@ -905,64 +905,35 @@ Sem separadores entre itens do resumo.
 
 #### 11.9.1 Cobertura de colunas — Seção Resumo
 
-| Linha | VAL_COLS | ACUM_V | ROLL_V | ANO A / ANO B | VAR % / VAR R$ | % AV |
-|---|---|---|---|---|---|---|
-| Atividades (×4) | SUMIFS `dfc_n1` + corte | SUM | SUMPRODUCT rolling | `_dfc_n1_ano` (§11.9.2) | ▲% / ▲R$ | — |
-| CAIXA INÍCIO | `f_SaldoBancos` EOMONTH / cadeia FIM | — | — | — | — | — |
-| CAIXA FIM | INÍCIO + FLUXO (VAL_COLS); ACUM_V vazio | — | — | — | — | — |
-| FLUXO DE CAIXA | Σ 4 Atividades | SUM | SUMPRODUCT rolling | Σ ANO das Atividades | ▲% / ▲R$ | — |
-| Movimentação Mês | Espelho FLUXO VAL_COLS | Espelho | Espelho | Espelho | Espelho | — |
+> **Decisão 24/jun/2026:** colunas de agregação (Acumulado, Rolling N, Ano A/B, ▲%/▲R$) removidas do DFC — não agregavam leitura prática no contexto de fluxo de caixa. DFC exibe apenas os 13 meses mensais.
 
-> **% AV não existe no DFC.** As colunas PCT_COLS, ACUM_P e ROLL_P **não são criadas** — o DFC usa layout compacto com colunas value consecutivas (C-O), sem interleaving de % AV. Ver §11.9.3.
+| Linha | VAL_COLS (C–O) | % AV |
+|---|---|---|
+| Atividades (×4) | SUMIFS `dfc_n1` + corte | — |
+| CAIXA INÍCIO | `f_SaldoBancos` EOMONTH / cadeia FIM | — |
+| CAIXA FIM | INÍCIO + FLUXO (VAL_COLS) | — |
+| FLUXO DE CAIXA | Σ 4 Atividades | — |
+| Movimentação Mês | Espelho FLUXO VAL_COLS | — |
+
+> **% AV não existe no DFC.** As colunas PCT_COLS, ACUM_P e ROLL_P **não são criadas** — o DFC usa layout compacto com colunas value consecutivas (C-O), sem interleaving de % AV. Ver §11.9.2.
 
 **Estilo das linhas de Atividades:**
 - Coluna B (rótulo): `font(C_DARK, bold=True, size=10)`, sem preenchimento
-- Colunas de valor (VAL_COLS, ACUM_V, ROLL_V, ANO A/B, VAR): estilo N3 — sem preenchimento, `font(C_DARK, bold=False, size=10)`
+- Colunas de valor (VAL_COLS): estilo N3 — sem preenchimento, `font(C_DARK, bold=False, size=10)`
 
-#### 11.9.2 Fórmula `_dfc_n1_ano` — ANO A/B para Atividades
+#### 11.9.2 Layout de colunas do DFC *(estrutura diferente do DRE)*
 
-Análoga ao `_ano` do DRE (§11.11), mas filtra por `f_Base[dfc_n1]` em vez de N3:
-
-```excel
-=SUMIFS(f_Base[valor],
-  f_Base[ano],            sel_AnoA,
-  f_Base[dfc_n1],         "<nome_N1>",
-  f_Base[bu],             IF(sel_BU="Todas","*",sel_BU),
-  f_Base[tipo_registro],  sel_TipoA,
-  IF(ISNUMBER(SEARCH("Trim",sel_PeriodoA)), f_Base[trimestre],
-     IF(ISNUMBER(SEARCH("Sem",sel_PeriodoA)), f_Base[semestre],
-                                               f_Base[mes_num])),
-  IF(ISNUMBER(SEARCH("Trim",sel_PeriodoA)), VALUE(LEFT(sel_PeriodoA,1)),
-     IF(ISNUMBER(SEARCH("Sem",sel_PeriodoA)), VALUE(LEFT(sel_PeriodoA,1)),
-                                               MONTH(1&sel_PeriodoA))))
-```
-
-#### 11.9.3 Layout de colunas do DFC *(estrutura diferente do DRE)*
-
-O DFC usa colunas consecutivas para valores mensais, sem interleaving de % AV:
+O DFC usa colunas consecutivas para valores mensais, sem interleaving de % AV e sem colunas de agregação:
 
 | Coluna(s) | Conteúdo | Largura |
 |---|---|---|
 | A | Separador | 1.86 |
 | B | Rótulos | autofit |
 | C – O | 13 meses de valor (consecutivos, C=mais antigo, O=sel_Ancora) | 11 |
-| P | Separador | 1.86 |
-| Q | Acumulado | 11 |
-| R | Separador | 1.86 |
-| S | Rolling N (display de `sel_RollingN`, creme) | 11 |
-| T | Separador | 1.86 |
-| U | Ano A | 11 |
-| V | Ano B | 11 |
-| W | ▲% (variação Ano A × Ano B) | 7 |
-| X | ▲R$ | 11 |
-| Y | Separador | 1.86 |
 
 **Header row 7 do DFC:**
 - `C7`–`N7`: `=EDATE(<col_seguinte>7,-1)` em cadeia a partir de `O7`
 - `O7`: `=sel_Ancora` (mês mais recente; formato `MMM/YYYY`)
-- `Q7`: `"Acumulado"` (cabeçalho fixo)
-- `S7`: `=sel_RollingN` (display do seletor DRE; creme; formato `"00"`)
-- `U7`/`V7`: `"Ano A →"` / `"Ano B →"`; `W7`: `"▲%"`; `X7`: `"▲R$"`
 - Formatação condicional âmbar aplicada a `C7:O7` (Realizado × Projeção)
 
 **Seletores no DFC (linhas 4-6):** o DFC **não possui seletores interativos** próprios.
@@ -1121,7 +1092,7 @@ bate: ±R$ 0,99** (diferenças menores que R$ 1,00 são ruído de arredondamento
 - [ ] Bate de colisão Realizado×Projeção = 0 meses em colisão (§4.3 item 5)
 - [ ] N3-único verificado: 0 violações em `dre_n3` e `dfc_n3`
 - [ ] BU distintas na `f_Base` ⊆ `bu_valores_validos` do `cad_cliente`
-- [ ] Células de valor mensais/acumulado/rolling com o IF de corte presente (§10.2.1 / §11.3); blocos Ano A/B usam `sel_TipoA/B` — sem corte automático (design §11.11)
+- [ ] Células de valor mensais com o IF de corte presente (§10.2.1 / §11.3); blocos Acumulado/Rolling/Ano A/B no DRE usam corte ou `sel_TipoA/B` (design §11.11); DFC usa apenas os 13 meses mensais — sem colunas de agregação (§11.9.1)
 - [ ] Aba check: todas as sinalizações verdes, **exceto** pendências explicitamente documentadas
 
 **Regra de bloqueio:** pendências documentadas (com ressalva escrita ao cliente — ex.: saldo

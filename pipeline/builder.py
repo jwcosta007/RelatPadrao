@@ -45,45 +45,18 @@ ROLL_V, ROLL_P  = 'AG', 'AH'
 ANO_A,  ANO_B   = 'AJ', 'AK'
 VAR_PCT, VAR_ABS = 'AL', 'AM'
 
-# ─── Layout DFC (sem % AV — colunas value consecutivas) ──────────────────────
-DFC_VAL  = ['C','D','E','F','G','H','I','J','K','L','M','N','O']  # 13 consecutivas
-DFC_ACUM = 'Q'   # Acumulado   (sep P)
-DFC_ROLL = 'S'   # Rolling N   (sep R)
-DFC_ANOA = 'U'   # Ano A       (sep T)
-DFC_ANOB = 'V'   # Ano B
-DFC_VARP = 'W'   # ▲%
-DFC_VARA = 'X'   # ▲R$
-# sep cols DFC: A, P, R, T, Y
-
-
-def _acum_dfc(row):
-    return f"=SUM({','.join(f'{c}{row}' for c in DFC_VAL)})"
-
-
-def _rolling_dfc(row):
-    c0, c1 = DFC_VAL[0], DFC_VAL[-1]
-    mc = col2idx(c1)   # COLUMN(O) = 15
-    return (f"=SUMPRODUCT((COLUMN({c0}{row}:{c1}{row})>={mc}+1-sel_RollingN)"
-            f"*{c0}{row}:{c1}{row})")
-
-
-def _varp_dfc(row):
-    return (f"=IF({DFC_ANOB}{row}=0,\"\","
-            f"({DFC_ANOA}{row}-{DFC_ANOB}{row})/ABS({DFC_ANOB}{row}))")
-
-
-def _vara_dfc(row):
-    return f"={DFC_ANOA}{row}-{DFC_ANOB}{row}"
-
+# ─── Layout DFC (sem % AV, sem colunas de agregação — apenas 13 meses) ───────
+DFC_VAL = ['C','D','E','F','G','H','I','J','K','L','M','N','O']  # 13 consecutivas
+# sep cols DFC: A
 
 DFC_CC = {
-    'val':     DFC_VAL,  'pct':     [],
-    'acum':    DFC_ACUM, 'acum_p':  None,
-    'roll':    DFC_ROLL, 'roll_p':  None,
-    'ano_a':   DFC_ANOA, 'ano_b':   DFC_ANOB,
-    'var_pct': DFC_VARP, 'var_abs': DFC_VARA,
-    'acum_fn': _acum_dfc,  'roll_fn': _rolling_dfc,
-    'varp_fn': _varp_dfc,  'vara_fn': _vara_dfc,
+    'val':     DFC_VAL, 'pct':     [],
+    'acum':    None,    'acum_p':  None,
+    'roll':    None,    'roll_p':  None,
+    'ano_a':   None,    'ano_b':   None,
+    'var_pct': None,    'var_abs': None,
+    'acum_fn': None,    'roll_fn': None,
+    'varp_fn': None,    'vara_fn': None,
 }
 
 SEL_BU_ROW   = 4
@@ -161,7 +134,7 @@ def _apply_num_formats(ws, row, cc=None):
     _ap = (cc or {}).get('acum_p',  ACUM_P)
     _rp = (cc or {}).get('roll_p',  ROLL_P)
     _vp = (cc or {}).get('var_pct', VAR_PCT)
-    for col in _vc + [_av, _rv, _aa, _ab, _va]:
+    for col in [c for c in _vc + [_av, _rv, _aa, _ab, _va] if c]:
         ws.cell(row=row, column=col2idx(col)).number_format = FMT_MOEDA
     for col in _pc + [c for c in [_ap, _rp, _vp] if c]:
         ws.cell(row=row, column=col2idx(col)).number_format = FMT_PCT
@@ -252,20 +225,6 @@ def _dfc_n1_total(col, n1_name):
         f"IF({col}${HDR_ROW}<=sel_MesCorte,\"Realizado\",sel_Projecao))"
     )
 
-def _dfc_n1_ano(ano_sel, tipo_sel, per_sel, n1_name):
-    return (
-        f"=SUMIFS(f_Base[valor],"
-        f"f_Base[ano],{ano_sel},"
-        f"f_Base[dfc_n1],\"{n1_name}\","
-        f"f_Base[bu],IF(sel_BU=\"Todas\",\"*\",sel_BU),"
-        f"f_Base[tipo_registro],{tipo_sel},"
-        f"IF(ISNUMBER(SEARCH(\"Trim\",{per_sel})),f_Base[trimestre],"
-        f"IF(ISNUMBER(SEARCH(\"Sem\",{per_sel})),f_Base[semestre],"
-        f"f_Base[mes_num])),"
-        f"IF(ISNUMBER(SEARCH(\"Trim\",{per_sel})),VALUE(LEFT({per_sel},1)),"
-        f"IF(ISNUMBER(SEARCH(\"Sem\",{per_sel})),VALUE(LEFT({per_sel},1)),"
-        f"MONTH(1&{per_sel}))))"
-    )
 
 def _sum_ch(col, rows):
     return f"=SUM({','.join(f'{col}{r}' for r in rows)})"
@@ -609,10 +568,14 @@ def _write_items(ws, items, ref_row, n3_field="dre_n3", write_pct=True, cc=None)
             ws.row_dimensions[row].outline_level = 1
             for col in _vc:
                 ws.cell(row=row, column=col2idx(col)).value = _n3_val(col, row, n3_field)
-            ws.cell(row=row, column=col2idx(_av)).value = _acum_fn(row)
-            ws.cell(row=row, column=col2idx(_rv)).value = _roll_fn(row)
-            ws.cell(row=row, column=col2idx(_aa)).value = _ano("sel_AnoA","sel_TipoA","sel_PeriodoA",row,n3_field)
-            ws.cell(row=row, column=col2idx(_ab)).value = _ano("sel_AnoB","sel_TipoB","sel_PeriodoB",row,n3_field)
+            if _av and _acum_fn:
+                ws.cell(row=row, column=col2idx(_av)).value = _acum_fn(row)
+            if _rv and _roll_fn:
+                ws.cell(row=row, column=col2idx(_rv)).value = _roll_fn(row)
+            if _aa:
+                ws.cell(row=row, column=col2idx(_aa)).value = _ano("sel_AnoA","sel_TipoA","sel_PeriodoA",row,n3_field)
+            if _ab:
+                ws.cell(row=row, column=col2idx(_ab)).value = _ano("sel_AnoB","sel_TipoB","sel_PeriodoB",row,n3_field)
             _pct_var(ws, row, ref_row, write_pct, cc)
             _row_sty(ws, row, _sty_n3, _sty_cols)
 
@@ -622,7 +585,7 @@ def _write_items(ws, items, ref_row, n3_field="dre_n3", write_pct=True, cc=None)
             _sty_n2(b)
             ws.row_dimensions[row].height = H_STD
             ch = [i["row"] for i in it["n3_items"]]
-            for col in _vc + [_av, _rv, _aa, _ab]:
+            for col in [c for c in _vc + [_av, _rv, _aa, _ab] if c]:
                 ws.cell(row=row, column=col2idx(col)).value = _sum_ch(col, ch)
             _pct_var(ws, row, ref_row, write_pct, cc)
             _row_sty(ws, row, _sty_n2, _sty_cols)
@@ -633,7 +596,7 @@ def _write_items(ws, items, ref_row, n3_field="dre_n3", write_pct=True, cc=None)
             _sty_n1(b)
             ws.row_dimensions[row].height = H_STD
             ch = [i["row"] for i in it["n3_items"]]
-            for col in _vc + [_av, _rv, _aa, _ab]:
+            for col in [c for c in _vc + [_av, _rv, _aa, _ab] if c]:
                 ws.cell(row=row, column=col2idx(col)).value = _sum_ch(col, ch)
             _pct_var(ws, row, ref_row, write_pct, cc)
             _row_sty(ws, row, _sty_n1, _sty_cols)
@@ -644,7 +607,7 @@ def _write_items(ws, items, ref_row, n3_field="dre_n3", write_pct=True, cc=None)
             _sty_n1(b)
             ws.row_dimensions[row].height = H_STD
             ch = [i["row"] for i in it["n2_items"]]
-            for col in _vc + [_av, _rv, _aa, _ab]:
+            for col in [c for c in _vc + [_av, _rv, _aa, _ab] if c]:
                 ws.cell(row=row, column=col2idx(col)).value = _sum_ch(col, ch)
             _pct_var(ws, row, ref_row, write_pct, cc)
             _row_sty(ws, row, _sty_n1, _sty_cols)
@@ -657,7 +620,7 @@ def _write_items(ws, items, ref_row, n3_field="dre_n3", write_pct=True, cc=None)
             ws.row_dimensions[row].height = H_KPI
             prev = it.get("prev_kpi_row")
             ch   = [i["row"] for i in it["n1_items"]]
-            for col in _vc + [_av, _rv, _aa, _ab]:
+            for col in [c for c in _vc + [_av, _rv, _aa, _ab] if c]:
                 ws.cell(row=row, column=col2idx(col)).value = _kpi_f(col, prev, ch)
             _pct_var(ws, row, ref_row, write_pct, cc)
             _row_sty(ws, row, sty, _sty_cols)
@@ -680,8 +643,10 @@ def _pct_var(ws, row, ref_row, write_pct=True, cc=None):
         if _ap: ws.cell(row=row, column=col2idx(_ap)).value = _pct(_avv, row, ref_row)
         if _rp: ws.cell(row=row, column=col2idx(_rp)).value = _pct(_rv, row, ref_row)
     # VAR sempre escrita (variação Ano A/B, não % AV)
-    ws.cell(row=row, column=col2idx(_vp)).value = _vpfn(row)
-    ws.cell(row=row, column=col2idx(_va)).value = _vafn(row)
+    if _vp and _vpfn:
+        ws.cell(row=row, column=col2idx(_vp)).value = _vpfn(row)
+    if _va and _vafn:
+        ws.cell(row=row, column=col2idx(_va)).value = _vafn(row)
     _apply_num_formats(ws, row, cc)
 
 
@@ -854,7 +819,7 @@ def build_kpi(wb, mes_corte=None, logo_path=None):
 # DFC — HEADER E LARGURAS ESPECÍFICAS
 # ─────────────────────────────────────────────────────────────────────────────
 def _write_header_dfc(ws, mes_corte):
-    """Header row 7 do DFC: colunas value consecutivas C-O + agregados."""
+    """Header row 7 do DFC: 13 colunas mensais consecutivas C-O."""
     # Datas: O7 = mais recente (sel_Ancora), cadeia para trás até C7
     ws[f"O{HDR_ROW}"] = "=sel_Ancora"
     _sty_hdr(ws[f"O{HDR_ROW}"])
@@ -866,24 +831,6 @@ def _write_header_dfc(ws, mes_corte):
         ws[f"{col}{HDR_ROW}"].number_format = "MMM/YYYY"
         prev = col
 
-    # Cabeçalhos de agregação
-    for ref, label in [
-        (f"{DFC_ACUM}{HDR_ROW}", "Acumulado"),
-        (f"{DFC_ANOA}{HDR_ROW}", "Ano A →"),
-        (f"{DFC_ANOB}{HDR_ROW}", "Ano B →"),
-        (f"{DFC_VARP}{HDR_ROW}", "▲%"),
-        (f"{DFC_VARA}{HDR_ROW}", "▲R$"),
-    ]:
-        ws[ref] = label
-        _sty_hdr(ws[ref])
-
-    # Rolling N: mostra valor atual de sel_RollingN (controlado pelo DRE)
-    ws[f"{DFC_ROLL}{HDR_ROW}"] = "=sel_RollingN"
-    _sty_sel(ws[f"{DFC_ROLL}{HDR_ROW}"])
-    ws[f"{DFC_ROLL}{HDR_ROW}"].number_format = "00"
-    ws[f"{DFC_ROLL}{HDR_ROW}"].alignment = Alignment(horizontal="center")
-    _border_single(ws, f"{DFC_ROLL}{HDR_ROW}")
-
     # Formatação condicional: âmbar para meses projetados
     rule = FormulaRule(
         formula=[f"C${HDR_ROW}>sel_MesCorte"],
@@ -894,11 +841,9 @@ def _write_header_dfc(ws, mes_corte):
 
 
 def _set_column_widths_dfc(ws):
-    for col in ['A', 'P', 'R', 'T', 'Y']:
-        ws.column_dimensions[col].width = _WIDTH_SEP
-    for col in DFC_VAL + [DFC_ACUM, DFC_ROLL, DFC_ANOA, DFC_ANOB, DFC_VARA]:
+    ws.column_dimensions['A'].width = _WIDTH_SEP
+    for col in DFC_VAL:
         ws.column_dimensions[col].width = 11
-    ws.column_dimensions[DFC_VARP].width = 7
     max_b = max(
         (len(str(ws.cell(row=r, column=2).value or ''))
          for r in range(1, ws.max_row + 1)),
@@ -1065,14 +1010,7 @@ def build_dfc(wb, mapa_df, mes_corte=None, logo_path=None):
         summ_n1_rows[n1] = r
         for col in DFC_VAL:
             ws.cell(row=r, column=col2idx(col)).value = _dfc_n1_total(col, n1)
-        ws.cell(row=r, column=col2idx(DFC_ACUM)).value  = _acum_dfc(r)
-        ws.cell(row=r, column=col2idx(DFC_ROLL)).value  = _rolling_dfc(r)
-        ws.cell(row=r, column=col2idx(DFC_ANOA)).value  = _dfc_n1_ano("sel_AnoA","sel_TipoA","sel_PeriodoA", n1)
-        ws.cell(row=r, column=col2idx(DFC_ANOB)).value  = _dfc_n1_ano("sel_AnoB","sel_TipoB","sel_PeriodoB", n1)
-        ws.cell(row=r, column=col2idx(DFC_VARP)).value  = _varp_dfc(r)
-        ws.cell(row=r, column=col2idx(DFC_VARA)).value  = _vara_dfc(r)
-        _row_sty(ws, r, _sty_n3,
-                 DFC_VAL + [DFC_ACUM, DFC_ROLL, DFC_ANOA, DFC_ANOB, DFC_VARP, DFC_VARA])
+        _row_sty(ws, r, _sty_n3, DFC_VAL)
         _apply_num_formats(ws, r, DFC_CC)
 
     caixa_ini_row = DATA_ROW + 4
@@ -1088,8 +1026,7 @@ def build_dfc(wb, mapa_df, mes_corte=None, logo_path=None):
             ws.cell(row=caixa_ini_row, column=col2idx(col)).value = _caixa_ini_first(col)
         else:
             ws.cell(row=caixa_ini_row, column=col2idx(col)).value = f"={DFC_VAL[j-1]}{caixa_fim_row}"
-    _row_sty(ws, caixa_ini_row, _sty_n1,
-             DFC_VAL + [DFC_ACUM, DFC_ROLL, DFC_ANOA, DFC_ANOB, DFC_VARP, DFC_VARA])
+    _row_sty(ws, caixa_ini_row, _sty_n1, DFC_VAL)
     _apply_num_formats(ws, caixa_ini_row, DFC_CC)
 
     # CAIXA FIM (ACUM vazio — estoque sem significado como acumulado)
@@ -1100,8 +1037,7 @@ def build_dfc(wb, mapa_df, mes_corte=None, logo_path=None):
         ws.cell(row=caixa_fim_row, column=col2idx(col)).value = (
             f"={col}{caixa_ini_row}+{col}{fluxo_row}"
         )
-    _row_sty(ws, caixa_fim_row, _sty_n1,
-             DFC_VAL + [DFC_ACUM, DFC_ROLL, DFC_ANOA, DFC_ANOB, DFC_VARP, DFC_VARA])
+    _row_sty(ws, caixa_fim_row, _sty_n1, DFC_VAL)
     _apply_num_formats(ws, caixa_fim_row, DFC_CC)
 
     # FLUXO DE CAIXA
@@ -1109,15 +1045,9 @@ def build_dfc(wb, mapa_df, mes_corte=None, logo_path=None):
     _sty_kpi(c)
     ws.row_dimensions[fluxo_row].height = H_KPI
     s_rows = list(summ_n1_rows.values())
-    for col in DFC_VAL + [DFC_ACUM]:
+    for col in DFC_VAL:
         ws.cell(row=fluxo_row, column=col2idx(col)).value = _sum_ch(col, s_rows)
-    ws.cell(row=fluxo_row, column=col2idx(DFC_ROLL)).value = _rolling_dfc(fluxo_row)
-    ws.cell(row=fluxo_row, column=col2idx(DFC_ANOA)).value = _sum_ch(DFC_ANOA, s_rows)
-    ws.cell(row=fluxo_row, column=col2idx(DFC_ANOB)).value = _sum_ch(DFC_ANOB, s_rows)
-    ws.cell(row=fluxo_row, column=col2idx(DFC_VARP)).value = _varp_dfc(fluxo_row)
-    ws.cell(row=fluxo_row, column=col2idx(DFC_VARA)).value = _vara_dfc(fluxo_row)
-    _row_sty(ws, fluxo_row, _sty_kpi,
-             DFC_VAL + [DFC_ACUM, DFC_ROLL, DFC_ANOA, DFC_ANOB, DFC_VARP, DFC_VARA])
+    _row_sty(ws, fluxo_row, _sty_kpi, DFC_VAL)
     _apply_num_formats(ws, fluxo_row, DFC_CC)
 
     # ── Separador após resumo ─────────────────────────────────────────────────
@@ -1145,14 +1075,7 @@ def build_dfc(wb, mapa_df, mes_corte=None, logo_path=None):
     ws.row_dimensions[mov_row].height = H_KPI
     for col in DFC_VAL:
         ws.cell(row=mov_row, column=col2idx(col)).value = f"={col}{fluxo_row}"
-    ws.cell(row=mov_row, column=col2idx(DFC_ACUM)).value = _acum_dfc(mov_row)
-    ws.cell(row=mov_row, column=col2idx(DFC_ROLL)).value = f"={DFC_ROLL}{fluxo_row}"
-    ws.cell(row=mov_row, column=col2idx(DFC_ANOA)).value = f"={DFC_ANOA}{fluxo_row}"
-    ws.cell(row=mov_row, column=col2idx(DFC_ANOB)).value = f"={DFC_ANOB}{fluxo_row}"
-    ws.cell(row=mov_row, column=col2idx(DFC_VARP)).value = f"={DFC_VARP}{fluxo_row}"
-    ws.cell(row=mov_row, column=col2idx(DFC_VARA)).value = f"={DFC_VARA}{fluxo_row}"
-    _row_sty(ws, mov_row, _sty_roxo,
-             DFC_VAL + [DFC_ACUM, DFC_ROLL, DFC_ANOA, DFC_ANOB, DFC_VARP, DFC_VARA])
+    _row_sty(ws, mov_row, _sty_roxo, DFC_VAL)
     _apply_num_formats(ws, mov_row, DFC_CC)
 
     _apply_grouping(ws, items, group_pct_cols=False)

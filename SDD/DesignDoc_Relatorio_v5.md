@@ -155,7 +155,7 @@ Formato: `"#,##0.00;-#,##0.00"` — notação OOXML (EN); exibe `1.234,56` em PT
 | Ano A / Ano B | AJ, AK |
 | Variação R$ | AM |
 
-**DFC** *(colunas diferentes)*: C–O · Q · S · U · V · X — ver §DFC — Estrutura de colunas.
+**DFC** *(colunas diferentes)*: apenas C–O (13 meses) — sem colunas de agregação. Ver §DFC — Estrutura de colunas.
 
 ### Análise vertical e variação %
 
@@ -170,7 +170,7 @@ Formato: `"#,##0.0%_);-#,##0.0%"` — notação OOXML (EN); exibe `12,5%` em PT-
 | % AV — Rolling N | AH (`ROLL_P`) |
 | Variação % | AL |
 
-**DFC**: sem colunas % AV. Apenas Variação % em W — mesmo formato.
+**DFC**: sem colunas % AV e sem colunas de agregação — apenas os 13 meses mensais (C–O).
 
 ### Seletor Rolling N (AG7)
 Formato: `"00"` — exibe valores de 2–12 sempre com 2 dígitos (ex.: `06`).
@@ -244,26 +244,17 @@ Colunas % AV a agrupar:
 
 ## DFC — Estrutura de colunas *(diferente do DRE)*
 
-O DFC tem layout compacto — sem colunas % AV, colunas value consecutivas:
+O DFC tem layout mínimo — sem colunas % AV e sem colunas de agregação:
+
+> **Decisão 24/jun/2026:** Acumulado, Rolling N, Ano A/B, ▲%/▲R$ removidos do DFC. DRE mantém todas as colunas de agregação.
 
 | Bloco | Colunas | Largura |
 |---|---|---|
 | Separador | A | 1.86 |
 | Rótulos | B | autofit |
 | 13 meses (value) | C – O | 11 |
-| Separador | P | 1.86 |
-| Acumulado | Q | 11 |
-| Separador | R | 1.86 |
-| Rolling N (display) | S | 11 |
-| Separador | T | 1.86 |
-| Ano A | U | 11 |
-| Ano B | V | 11 |
-| ▲% | W | 7 |
-| ▲R$ | X | 11 |
-| Separador | Y | 1.86 |
 
 **Seletores:** DFC não possui seletores interativos (linhas 4-6 são vazias). Controle via DRE Gerencial.
-**Rolling N (S7):** fórmula `=sel_RollingN` com fundo creme — display read-only do seletor DRE.
 
 ---
 
