@@ -1,4 +1,16 @@
 {
+  "bu_validos": ["Ab Aeterno", "Da Una Vita", "Holding"],
+  "tipo_reg_validos": ["Realizado", "Orçado", "Reforecast"],
+  "mapa_fonte": {
+    "Realizado":   "Dados Oficiais",
+    "Orçado":      "Orçamento",
+    "Reforecast":  "Reforecast"
+  },
+  "mes_corte_realizado": "2026-05",
+  "saldo_seed": [
+    { "data": "2022-12-31", "BU": "Holding", "nome_conta": "PJ", "valor": 0 },
+    { "data": "2022-12-31", "BU": "Holding", "nome_conta": "PF", "valor": 0 }
+  ],
   "dre_cascade": [
     {
       "n1_names": ["Receita Líquida"],

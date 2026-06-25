@@ -13,20 +13,31 @@ import writer
 # ─────────────────────────────────────────────────────────────────────────────
 # PATHS
 # ─────────────────────────────────────────────────────────────────────────────
-BASE_DIR      = Path(r"C:\Dev\projetos\RelatPadrao")
-LCTOS_PATH    = BASE_DIR / "assets" / "Piloto" / "ABAeterno" / "f_Lctos_2023_2026_proj.xlsx"
-MAPA_PATH     = BASE_DIR / "assets" / "Piloto" / "ABAeterno" / "AB_MapaAloc_v11 - Atual utilizado na AB.xlsx"
-LOGO_PATH     = BASE_DIR / "assets" / "logo" / "5.png"
-CASCADE_PATH  = BASE_DIR / "assets" / "cad_clientes" / "cad_cliente_AB.json"
+BASE_DIR   = Path(r"C:\Dev\projetos\RelatPadrao")
+LCTOS_PATH = BASE_DIR / "assets" / "Piloto" / "ABAeterno" / "f_Lctos_2023_2026_proj.xlsx"
+MAPA_PATH  = BASE_DIR / "assets" / "Piloto" / "ABAeterno" / "AB_MapaAloc_v11 - Atual utilizado na AB.xlsx"
+LOGO_PATH  = BASE_DIR / "assets" / "logo" / "5.png"
+CFG_PATH   = BASE_DIR / "assets" / "cad_clientes" / "cad_cliente_AB.json"
 
 # ─────────────────────────────────────────────────────────────────────────────
-# CONFIG AB AETERNO  (cad_cliente_AB)
+# CONFIG AB AETERNO — carregada de cad_cliente_AB.json
 # ─────────────────────────────────────────────────────────────────────────────
-BU_VALIDOS       = {"Ab Aeterno", "Da Una Vita", "Holding"}
-TIPO_REG_VALIDOS = {"Realizado", "Orçado", "Reforecast"}
-MAPA_FONTE       = {"Realizado": "Dados Oficiais",
-                    "Orçado": "Orçamento",
-                    "Reforecast": "Reforecast"}
+with open(CFG_PATH, encoding="utf-8") as _f:
+    _cfg = json.load(_f)
+
+BU_VALIDOS       = set(_cfg["bu_validos"])
+TIPO_REG_VALIDOS = set(_cfg["tipo_reg_validos"])
+MAPA_FONTE       = _cfg["mapa_fonte"]
+DRE_CASCADE      = [
+    (item["n1_names"], item["kpi_label"], item["is_roxo"])
+    for item in _cfg["dre_cascade"]
+]
+F_SALDO_SEED = pd.DataFrame(
+    [{"data": pd.Timestamp(r["data"]), "BU": r["BU"],
+      "nome_conta": r["nome_conta"], "valor": r["valor"]}
+     for r in _cfg["saldo_seed"]],
+    columns=["data", "BU", "nome_conta", "valor"]
+)
 
 CAD_CONFIG = {
     "codigo":                    "AB",
@@ -38,10 +49,10 @@ CAD_CONFIG = {
     "staging_mapa_fonte":        "Realizado→Dados Oficiais | Orçado→Orçamento",
     "conversao_defensiva_valor": "Sim",
     "bu_origem":                 "f_Lctos_direto",
-    "bu_valores_validos":        "Ab Aeterno | Da Una Vita | Holding",
+    "bu_valores_validos":        " | ".join(_cfg["bu_validos"]),
     "tem_conta_bancaria":        "Sim",
     "tem_fornecedor_cliente":    "Sim",
-    "mes_corte_realizado":       "2026-05",
+    "mes_corte_realizado":       _cfg["mes_corte_realizado"],
     "reforecast_vigente_ref":    "",
     "mapaaloc_arquivo":          "AB_MapaAloc_v11 - Atual utilizado na AB.xlsx",
     "mapaaloc_versao":           "v11",
@@ -50,16 +61,6 @@ CAD_CONFIG = {
 
 _ts         = datetime.now().strftime("%Y%m%d%H%M")
 OUTPUT_PATH = BASE_DIR / "relatorios" / f"{CAD_CONFIG['codigo']}_RelatFinanceiro_{_ts}.xlsx"
-
-# ─────────────────────────────────────────────────────────────────────────────
-# CASCADE DRE — carregada de cad_cliente_AB.json (fonte: §5 do cad_cliente_AB.md)
-# ─────────────────────────────────────────────────────────────────────────────
-with open(CASCADE_PATH, encoding="utf-8") as _f:
-    _cascade_cfg = json.load(_f)
-DRE_CASCADE = [
-    (item["n1_names"], item["kpi_label"], item["is_roxo"])
-    for item in _cascade_cfg["dre_cascade"]
-]
 
 # ─────────────────────────────────────────────────────────────────────────────
 # CONTRATOS DE COLUNAS  (fonte: cad_cliente_AB.md §2.2)
@@ -77,11 +78,6 @@ F_BASE_COLS = [
 
 F_ERROS_COLS = ["id_lcto","data_caixa","categoria","bu",
                 "tipo_registro","valor","motivo"]
-
-F_SALDO_SEED = pd.DataFrame([
-    {"data": pd.Timestamp("2022-12-31"), "BU": "Holding", "nome_conta": "PJ", "valor": 0},
-    {"data": pd.Timestamp("2022-12-31"), "BU": "Holding", "nome_conta": "PF", "valor": 0},
-], columns=["data", "BU", "nome_conta", "valor"])
 
 
 # ─────────────────────────────────────────────────────────────────────────────
