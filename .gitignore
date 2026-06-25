@@ -1,0 +1,32 @@
+# Python
+__pycache__/
+*.py[cod]
+*.pyd
+.Python
+
+# Ambientes virtuais
+venv/
+.venv/
+env/
+.env
+
+# Dados de entrada — arquivos de cliente (sensíveis)
+assets/Piloto/
+
+# Scripts auxiliares inativos e arquivos históricos (xlsx com dados de cliente)
+_old/
+
+# Output gerado pelo ETL
+relatorios/
+
+# Configuração local do Claude Code
+.claude/settings.local.json
+
+# Sistemas operacionais
+.DS_Store
+Thumbs.db
+
+# IDEs
+.vscode/
+.idea/
+*.swp
