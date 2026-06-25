@@ -1,6 +1,7 @@
 import warnings
 warnings.filterwarnings("ignore", category=UserWarning)
 
+import json
 import pandas as pd
 from pathlib import Path
 from datetime import datetime
@@ -12,10 +13,11 @@ import writer
 # ─────────────────────────────────────────────────────────────────────────────
 # PATHS
 # ─────────────────────────────────────────────────────────────────────────────
-BASE_DIR   = Path(r"C:\Dev\projetos\RelatPadrao")
-LCTOS_PATH = BASE_DIR / "assets" / "Piloto" / "ABAeterno" / "f_Lctos_2023_2026_proj.xlsx"
-MAPA_PATH  = BASE_DIR / "assets" / "Piloto" / "ABAeterno" / "AB_MapaAloc_v11 - Atual utilizado na AB.xlsx"
-LOGO_PATH  = BASE_DIR / "assets" / "logo" / "5.png"
+BASE_DIR      = Path(r"C:\Dev\projetos\RelatPadrao")
+LCTOS_PATH    = BASE_DIR / "assets" / "Piloto" / "ABAeterno" / "f_Lctos_2023_2026_proj.xlsx"
+MAPA_PATH     = BASE_DIR / "assets" / "Piloto" / "ABAeterno" / "AB_MapaAloc_v11 - Atual utilizado na AB.xlsx"
+LOGO_PATH     = BASE_DIR / "assets" / "logo" / "5.png"
+CASCADE_PATH  = BASE_DIR / "assets" / "cad_clientes" / "cad_cliente_AB.json"
 
 # ─────────────────────────────────────────────────────────────────────────────
 # CONFIG AB AETERNO  (cad_cliente_AB)
@@ -50,25 +52,13 @@ _ts         = datetime.now().strftime("%Y%m%d%H%M")
 OUTPUT_PATH = BASE_DIR / "relatorios" / f"{CAD_CONFIG['codigo']}_RelatFinanceiro_{_ts}.xlsx"
 
 # ─────────────────────────────────────────────────────────────────────────────
-# CASCADE DRE — define posição dos KPIs na cascata (§9 do v16)
+# CASCADE DRE — carregada de cad_cliente_AB.json (fonte: §5 do cad_cliente_AB.md)
 # ─────────────────────────────────────────────────────────────────────────────
-# (n1_names_em_ordem, kpi_label, is_roxo_logo)
+with open(CASCADE_PATH, encoding="utf-8") as _f:
+    _cascade_cfg = json.load(_f)
 DRE_CASCADE = [
-    (["Receita Líquida"],
-     "RECEITA LÍQUIDA", False),
-
-    (["Custos", "Despesas Comerciais"],
-     "MARGEM DE CONTRIBUIÇÃO", False),
-
-    (["Despesas"],
-     "EBITDA", False),
-
-    (["Investimentos", "Resultado Financeiro",
-      "Resultado Não Operacional", "Impostos sobre Resultado"],
-     "LUCRO LÍQUIDO", False),
-
-    (["Societário"],
-     "RESULTADO INVESTIDORES", True),
+    (item["n1_names"], item["kpi_label"], item["is_roxo"])
+    for item in _cascade_cfg["dre_cascade"]
 ]
 
 # ─────────────────────────────────────────────────────────────────────────────

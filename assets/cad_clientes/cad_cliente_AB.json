@@ -1,0 +1,34 @@
+{
+  "dre_cascade": [
+    {
+      "n1_names": ["Receita Líquida"],
+      "kpi_label": "RECEITA LÍQUIDA",
+      "is_roxo": false
+    },
+    {
+      "n1_names": ["Custos", "Despesas Comerciais"],
+      "kpi_label": "MARGEM DE CONTRIBUIÇÃO",
+      "is_roxo": false
+    },
+    {
+      "n1_names": ["Despesas"],
+      "kpi_label": "EBITDA",
+      "is_roxo": false
+    },
+    {
+      "n1_names": [
+        "Investimentos",
+        "Resultado Financeiro",
+        "Resultado Não Operacional",
+        "Impostos sobre Resultado"
+      ],
+      "kpi_label": "LUCRO LÍQUIDO",
+      "is_roxo": false
+    },
+    {
+      "n1_names": ["Societário"],
+      "kpi_label": "RESULTADO INVESTIDORES",
+      "is_roxo": true
+    }
+  ]
+}

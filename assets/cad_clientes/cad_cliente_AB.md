@@ -129,7 +129,12 @@ O staging distingue `fonte` pelo valor de `tipo_registro`.
 
 ---
 
-## 5. Exceção DRE — `Impostos sobre Resultado` é N1 próprio
+## 5. Cascata DRE e exceção `Impostos sobre Resultado`
+
+A cascata de KPIs do DRE está definida em `assets/cad_clientes/cad_cliente_AB.json`
+(chave `dre_cascade`), carregada em runtime pelo `pipeline/etl_ab.py`.
+
+### Exceção — `Impostos sobre Resultado` é N1 próprio
 
 Na cascata padrão AZ, `Impostos sobre Resultado` seria N1 dentro de `Resultado Financeiro`
 ou similar. Para AB, é um **N1 independente** na cascata, posicionado após

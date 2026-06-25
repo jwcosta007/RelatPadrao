@@ -65,8 +65,20 @@ Detalhes do contrato de dados em `SDD/SRS_RegrasRelatPadrao.md`.
 **1. Criar o cadastro do cliente**
 
 Copie `assets/cad_clientes/cad_cliente_AB.md` como ponto de partida e salve como
-`assets/cad_clientes/cad_cliente_<CODIGO>v01.md`. Preencha todos os campos da §1
+`assets/cad_clientes/cad_cliente_<CODIGO>.md`. Preencha todos os campos da §1
 (BUs, `mes_corte_realizado`, condicionais, MapaAloc, etc.).
+
+Crie também `assets/cad_clientes/cad_cliente_<CODIGO>.json` com a cascata DRE,
+seguindo o modelo de `cad_cliente_AB.json`:
+
+```json
+{
+  "dre_cascade": [
+    { "n1_names": ["N1_A", "N1_B"], "kpi_label": "NOME DO KPI", "is_roxo": false },
+    { "n1_names": ["N1_C"], "kpi_label": "RESULTADO INVESTIDORES", "is_roxo": true }
+  ]
+}
+```
 
 **2. Preparar os dados de entrada**
 
@@ -83,7 +95,7 @@ Copie `pipeline/etl_ab.py` como `pipeline/etl_<codigo>.py` e ajuste:
 | `PATHS` | `LCTOS_PATH`, `MAPA_PATH` apontando para a pasta do cliente |
 | `BU_VALIDOS` | BUs do cliente conforme cadastro |
 | `CAD_CONFIG` | Todos os campos do cad_cliente (codigo, nome, BUs, corte, etc.) |
-| `DRE_CASCADE` | Cascata de KPIs do DRE — específica por cliente |
+| `DRE_CASCADE` | Lida de `cad_cliente_<CODIGO>.json` (chave `dre_cascade`) — não hardcodar |
 | `F_BASE_COLS` | Ajustar se o cliente tiver condicionais diferentes das do AB |
 | `F_SALDO_SEED` | Seed de abertura do f_SaldoBancos (BU, conta, data, valor 0) |
 

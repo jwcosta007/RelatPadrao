@@ -410,6 +410,14 @@ O gerador nunca emite referência a coluna desligada.
   primeiro; onde vive o limiar de alerta (código Python ou cad_cliente). Aba criada vazia;
   não bloqueia entrega AB.
 
+### 7.1.1 Decisões fechadas (registradas aqui para histórico)
+
+- **`DRE_CASCADE` — localização canônica: `cad_cliente_<CODIGO>.json`** *(fechado 25/jun/2026)*
+  Cascata de KPIs do DRE (quais N1s precedem cada KPI, rótulo e estilo) vive em
+  `assets/cad_clientes/cad_cliente_<CODIGO>.json`, chave `dre_cascade`. O `etl_*.py`
+  carrega via `json.load()`. Exemplo: `cad_cliente_AB.json`. Padrão escolhido antecipa
+  migração para interface web — JSON é formato nativo de API. Ver `cad_cliente_AB.md` §5.
+
 ### 7.2 Dívida de documentação
 
 - `AZ_Modelo_Padrao_v7 → v8`: `segmento`/`moeda` → cad_cliente; `f_Base`; contrato
