@@ -547,9 +547,11 @@ def _write_items(ws, items, ref_row, n3_field="dre_n3", write_pct=True, cc=None)
     _rp      = (cc or {}).get('roll_p',  ROLL_P)
     _aa      = (cc or {}).get('ano_a',   ANO_A)
     _ab      = (cc or {}).get('ano_b',   ANO_B)
+    _vp      = (cc or {}).get('var_pct', VAR_PCT)
+    _va      = (cc or {}).get('var_abs', VAR_ABS)
     _acum_fn = (cc or {}).get('acum_fn', _acum)
     _roll_fn = (cc or {}).get('roll_fn', _rolling)
-    _sty_cols = _vc + _pc + [c for c in [_av, _ap, _rv, _rp, _aa, _ab] if c]
+    _sty_cols = _vc + _pc + [c for c in [_av, _ap, _rv, _rp, _aa, _ab, _vp, _va] if c]
     for it in items:
         row = it["row"]
         t   = it["type"]
