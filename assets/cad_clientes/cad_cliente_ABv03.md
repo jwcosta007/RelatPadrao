@@ -61,7 +61,7 @@
 
 | Bloco | Qtd | Detalhe |
 |---|---|---|
-| Núcleo universal | 23 | Padrão AZ (ver §1.2 do v14) |
+| Núcleo universal | 23 | Padrão AZ (ver `SDD/RegrasRelatPadrao.md` §1.2) |
 | Condicionais ligadas | 2 | `conta_bancaria`, `fornecedor_cliente` |
 | KPIs vivos | 9 | Ver §2.1 abaixo |
 | **Total** | **34** | |

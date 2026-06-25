@@ -72,7 +72,7 @@ DRE_CASCADE = [
 ]
 
 # ─────────────────────────────────────────────────────────────────────────────
-# CONTRATOS DE COLUNAS
+# CONTRATOS DE COLUNAS  (fonte: cad_cliente_ABv03.md §2.2)
 # ─────────────────────────────────────────────────────────────────────────────
 F_BASE_COLS = [
     "tipo_registro","data_caixa","historico","categoria","valor","bu",
