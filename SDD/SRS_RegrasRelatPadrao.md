@@ -619,9 +619,6 @@ O campo de seletor de tipo nos relatórios-fim tem valores **`Orçado` / `Refore
 não `Realizado / Orçado`. Realizado é consumido automaticamente para meses ≤ `mes_corte_realizado`
 via corte embutido no SUMIFS (§11.3). O operador não precisa trocar o seletor ao virar o mês.
 
-> **Nota histórica:** o piloto anterior (`ABRelatório_Financeiro_202604abr_V2.1.xlsx`) tinha
-> o campo "Tipo" com valores `Realizado / Orçado`, o que estava desalinhado com §10.3
-> (que já especificava `Orçado / Reforecast`). O campo renomeado para "Projeção" corrige isso.
 
 ### 11.3 SUMIFS com corte determinístico embutido
 
@@ -665,7 +662,7 @@ Layout padronizado do **DRE Gerencial** *(DFC tem estrutura diferente — ver §
 | Ano B | AK | Total Ano B (SUMIFS por `ano` = AK6, período = AK7) |
 | Variação | AL, AM | ▲% e ▲R$ (Ano A vs Ano B) |
 
-**Seletores aplicam-se ao DRE Gerencial.** O DFC não possui seletores interativos próprios — usa os named ranges do DRE via fórmulas (ver §11.9.3). O arquivo-piloto (`ABRelatório_Financeiro_202604abr_V2.1.xlsx`) tinha desvios no DFC (âncora dupla em C5:C6, `sel_Projecao` ausente, rolling/anos/período deslocados uma linha). Não replicar.
+**Seletores aplicam-se ao DRE Gerencial.** O DFC não possui seletores interativos próprios — usa os named ranges do DRE via fórmulas (ver §11.9.3).
 
 **Seletores** (células cor creme `FFF9F5CE`) e **rótulos** (sem preenchimento):
 
@@ -1077,12 +1074,8 @@ versões antigas, para a varredura final quando esta janela fechar e o `v15` for
 
 ### 13.6 Validação do `AB_MapaAloc_v11` externo — pendência legítima, fora do escopo desta janela
 
-A exceção `Impostos sobre Resultado` como N1 próprio foi **confirmada na estrutura** (N1 = N2
-= N3, posição correta na cascata, 0 violações de N3-único em DRE e DFC) — porém verificada no
-`Mapa` interno do arquivo-piloto, **não** no `AB_MapaAloc_v11` externo declarado como fonte de
-verdade em `cad_cliente_AB`. A revalidação no v11 canônico permanece no checklist de
-fechamento mensal do AB (confirmar `dre_n1 = "Impostos sobre Resultado"` e ordem). Não bloqueia
-esta janela de regras.
+Validação da exceção `Impostos sobre Resultado` como N1 próprio no `AB_MapaAloc_v11` canônico
+é pendência de governance do cliente AB. Ver `cad_cliente_AB.md` §5.
 
 ---
 

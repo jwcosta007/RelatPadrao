@@ -142,6 +142,15 @@ Investimentos → Resultado Financeiro → Resultado Não Operacional →
 **IMPOSTOS SOBRE RESULTADO** ← *N1 próprio (exceção AB)* →
 **LUCRO LÍQUIDO** → Societário → **RESULTADO INVESTIDORES**
 
+### Checklist de governance (fechamento mensal)
+
+A exceção foi confirmada na estrutura do `Mapa` interno do arquivo-piloto, **não** no
+`AB_MapaAloc_v11` externo (fonte de verdade). A cada fechamento mensal, verificar no
+`AB_MapaAloc_v11` canônico que `Impostos sobre Resultado` mantém:
+- `dre_n1 = "Impostos sobre Resultado"` (N1 próprio)
+- Posição após `Resultado Não Operacional` e antes de `Lucro Líquido`
+- 0 violações de N3-único em DRE e DFC
+
 ---
 
 ## 6. MapaAloc — estado atual
