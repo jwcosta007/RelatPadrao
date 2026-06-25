@@ -143,7 +143,7 @@ Formato: `"MMM/YYYY"` em ambas as abas.
 
 ### Valores monetários
 
-Formato: `"#,##0.00;-#,##0.00"` — notação OOXML (EN); exibe `1.234,56` em PT-BR. Sem prefixo de moeda; negativos com sinal à esquerda.
+Formato: `"#,##0;-#,##0"` — notação OOXML (EN); exibe `1.235` em PT-BR (sem casas decimais). Sem prefixo de moeda; negativos com sinal à esquerda.
 
 **DRE Gerencial:**
 
@@ -290,6 +290,6 @@ Mesma fonte das colunas de valor da linha correspondente: N3 = size 10 sem negri
 - Seletores: fundo `FFF9F5CE`, fonte negrito `175179`, borda thin `96CCD4` externa; `sel_BU` merge `C4:G4`; `sel_Projecao` merge `F5:G5`
 - Rótulos de seletor: sem preenchimento, borda thin `96CCD4` externa
 - Formato data: `"MMM/YYYY"` — `sel_Ancora` (C5) e VAL_COLS linha 7
-- Formato monetário: `"#,##0.00;-#,##0.00"` — corpo do relatório (valores); notação OOXML
+- Formato monetário: `"#,##0;-#,##0"` — corpo do relatório (valores); notação OOXML
 - Formato percentual: `"#,##0.0%_);-#,##0.0%"` — corpo do relatório (% AV e variação %); notação OOXML
 - % AV (PCT_COLS, ACUM_P, ROLL_P): populadas apenas no DRE Gerencial; no DFC estas colunas **não existem** (layout diferente — ver §11.9.3 das Regras)

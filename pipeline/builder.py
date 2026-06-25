@@ -98,7 +98,7 @@ def _abs_ref(cell_ref: str) -> str:
 # ─────────────────────────────────────────────────────────────────────────────
 # FORMATOS NUMÉRICOS E BORDAS (DesignDoc_Relatorio_v3 §Formatação)
 # ─────────────────────────────────────────────────────────────────────────────
-FMT_MOEDA = "#,##0.00;-#,##0.00"
+FMT_MOEDA = "#,##0;-#,##0"
 FMT_PCT   = "#,##0.0%_);-#,##0.0%"
 
 _SIDE_CYAN = Side(style="thin", color="96CCD4")
