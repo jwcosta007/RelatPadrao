@@ -260,7 +260,7 @@ def _ano(ano_sel, tipo_sel, per_sel, row, n3_field="dre_n3"):
         f"f_Base[mes_num])),"
         f"IF(ISNUMBER(SEARCH(\"Trim\",{per_sel})),VALUE(LEFT({per_sel},1)),"
         f"IF(ISNUMBER(SEARCH(\"Sem\",{per_sel})),VALUE(LEFT({per_sel},1)),"
-        f"MONTH(1&{per_sel}))))"
+        f"MATCH({per_sel},lista_periodo,0))))"
     )
 
 def _var_pct_f(row):

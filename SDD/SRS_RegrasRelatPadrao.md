@@ -974,12 +974,12 @@ Sem filtro por N2 ou N3 — agrega toda a atividade.
                                                f_Base[mes_num])),
   IF(ISNUMBER(SEARCH("Trim",sel_PeriodoA)), VALUE(LEFT(sel_PeriodoA,1)),
      IF(ISNUMBER(SEARCH("Sem",sel_PeriodoA)), VALUE(LEFT(sel_PeriodoA,1)),
-                                               MONTH(1&sel_PeriodoA))))
+                                               MATCH(sel_PeriodoA,lista_periodo,0))))
 ```
 SUMIFS com coluna de período dinâmica no `criteria_range` via IF (§11.5). `sel_TipoA` controla
 tipo de dado — sem corte automático neste bloco (design intencional; ver §11.3 exceção).
-Ano B: mesma fórmula com `sel_AnoB` e `sel_TipoB`. `MONTH(1&sel_PeriodoA)` é locale-dependente
-(PT-BR) — aceitável para ambiente BR.
+Ano B: mesma fórmula com `sel_AnoB` e `sel_TipoB`. `MATCH(sel_PeriodoA,lista_periodo,0)`
+converte nome do mês em número via posição na `lista_periodo` — locale-independent.
 
 **Variação** (AL / AM):
 ```excel
