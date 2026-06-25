@@ -73,20 +73,4 @@ RelatPadrao/
 
 ## Roadmap
 
-> Detalhamento completo em `SDD/RegrasRelatPadrao.md` §7.
-
-### Próxima iteração (pós-piloto AB)
-
-- **Aba `check`:** implementar fórmulas §12 (soma KPI vs cascata, `_sem_mapa = 0`, contador `f_Erros`, bate colisão R×P, bate DFC caixa). Design ainda em aberto (v20 §7.1).
-- **Demais clientes (ES, GCG, LA, OS):** criar `etl_<codigo>.py` por cliente após validação AB. Cadastros em `assets/cad_clientes/` já existem.
-- **`d_Calendario` / `d_Feriados`:** criar somente quando `tem_data_competencia = Sim` ou `tem_data_vencimento = Sim` no `cad_cliente`. AB não usa.
-
-### Médio prazo
-
-- **Frente Projeções/Forecast (§10):** aba O×R com seletores duplos, gráfico FP&A 3 séries, bate colisão na `check`. Design FECHADO em §10; implementação pendente.
-- **Gerador de MapaAloc** + **Gerador de DRE/DFC** a partir do MapaAloc.
-
-### Longo prazo / greenfield
-
-- `id_lcto` persistente (chave natural/hash) → migração Python/PostgreSQL.
-- Camada 0 plena, conector-por-ERP → backlog greenfield.
+Ver `ROADMAP.md` na raiz do repositório.

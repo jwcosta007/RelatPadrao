@@ -463,36 +463,9 @@ O gerador nunca emite referência a coluna desligada.
   incluindo `tem_fornecedor_cliente` no cad_cliente).
 - Remover `RegrasRelatPadrao_v13.md` após validação.
 
-### 7.3 Roadmap pós-implementação corrente
+### 7.3 Roadmap
 
-#### Próxima iteração (pós-piloto AB)
-
-- **Aba `check` — implementação das fórmulas §12:** soma KPI vs cascata N3; `_sem_mapa = 0`;
-  contador `f_Erros` (vermelho se > 0); bate colisão Realizado×Projeção; bate DFC caixa;
-  BU duplo-check. Design em §7.1.
-- **Implantação demais clientes (ES, GCG, LA, OS):** aguardar validação piloto AB; cada
-  cliente gera um `etl_<codigo>.py` equivalente ao `etl_ab.py`, parametrizado pelo
-  `cad_cliente` respectivo. Cadastros `cad_cliente_*.md` já existem.
-- **`d_Calendario` / `d_Feriados` (eixos secundários):** criar abas somente quando
-  `tem_data_competencia = Sim` ou `tem_data_vencimento = Sim` no `cad_cliente`. AB não usa;
-  será necessário nos primeiros clientes com data de vencimento ativa.
-
-#### Médio prazo
-
-- **Frente de Projeções/Forecast inteira (§10):** seletores de projeção em DRE/DFC/KPI,
-  aba O×R com seletores duplos, gráfico FP&A de 3 séries, bate de colisão na check.
-  Design FECHADO em §10; implementação pendente.
-- **Gerador de MapaAloc:** sugere KPIs-padrão; alerta KPI sem nenhum "Sim"; gera header
-  2 linhas + checagem N3-único automática (DRE+DFC).
-- **Gerador de DRE/DFC a partir do MapaAloc:** cascata + fórmulas SUMIFS; invariante §6.10.
-  As duas ferramentas são irmãs (entrada/saída) e compartilham invariantes KPI e N3-único.
-- **Checagem de N3-único** embutida no MapaAloc + atualização do template.
-
-#### Longo prazo / greenfield
-
-- **`id_lcto` persistente** (chave natural/hash) → migração Python/PostgreSQL.
-- Camada 0 plena, conector-por-ERP, fato-magra, KPI flags como tabela de associação →
-  migração Python (backlog greenfield).
+Ver `ROADMAP.md` na raiz do repositório.
 
 ---
 
