@@ -423,6 +423,17 @@ O gerador nunca emite referência a coluna desligada.
   Excel EN-US). Substituída por `MATCH` contra `lista_periodo` (posições 1–12 = meses
   1–12) — locale-independent. Ver §11.11.
 
+- **`requirements.txt` — versões com `>=` em vez de `==`** *(fechado 25/jun/2026)*
+  A skill `azr-code` exige pinning exato (`==`). Decisão consciente de manter `>=` neste
+  projeto ETL: escopo limitado, dependências estáveis, atualização de patches de segurança
+  sem edição manual. Reavaliar para `==` ao migrar para produção web multi-tenant.
+
+- **Commits em português descritivo** *(fechado 25/jun/2026)*
+  A skill `azr-code` exige Conventional Commits em inglês (`feat(scope): description`).
+  Mantido PT-BR neste projeto: histórico já iniciado em português, contexto solo BR,
+  sem CI que valide o formato. Adotar Conventional Commits em inglês nos próximos
+  projetos com pipeline AZ formal (`Tasks_v[n].md`).
+
 ### 7.2 Dívida de documentação
 
 - `AZ_Modelo_Padrao_v7 → v8`: `segmento`/`moeda` → cad_cliente; `f_Base`; contrato

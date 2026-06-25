@@ -47,6 +47,15 @@ python pipeline/etl_ab.py
 O arquivo de saída é gerado em `relatorios/` com o nome `{SIGLA}_RelatFinanceiro_{YYYYMMDDHHMM}.xlsx`.
 Exemplo: `AB_RelatFinanceiro_202606250054.xlsx`.
 
+## Como rodar os testes
+
+```bash
+python -m pytest tests/ -v
+```
+
+- `tests/test_etl.py` — 21 testes unitários (não requerem dados reais)
+- `tests/test_workbook.py` — 13 testes de integração (requerem xlsx em `relatorios/`)
+
 ---
 
 ## Configuração de cliente

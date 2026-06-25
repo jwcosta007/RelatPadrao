@@ -82,3 +82,5 @@ Mudanças de código rastreadas via `git log`.
 | Campos ausentes preenchidos com placeholder | `null`, nunca `"ND"`/`"BRL"`/string vazia |
 | Mês pt-BR dependente de locale | Lista estática no ETL |
 | `MONTH(1&sel_Periodo)` locale-dependente na fórmula Excel (falha silenciosa em EN-US) | `MATCH(sel_Periodo,lista_periodo,0)` — posição na lista = número do mês, sem dependência de locale |
+| Colunas AL (▲%) e AM (▲R$) sem fill/fonte no DRE | `_vp` e `_va` adicionados a `_sty_cols` em `_write_items()` |
+| Valores `###` em colunas de acumulado por largura insuficiente | Formato `#,##0.00` → `#,##0` (sem casas decimais) reduz largura dos números |

@@ -8,9 +8,12 @@
 ## Próxima iteração (pós-piloto AB)
 
 - **Aba `check` — fórmulas de validação:** soma KPI vs cascata N3; `_sem_mapa = 0`; contador `f_Erros` (vermelho se > 0); bate colisão Realizado×Projeção; bate DFC caixa; BU duplo-check. Design em aberto — ver `SDD/SRS_RegrasRelatPadrao.md` §7.1.
+  - **Pendência C:** IF de corte Realizado×Projeção sem rastreabilidade — builder escreve o IF mas não há verificação de que está em todas as células; a aba `check` é o remédio natural.
+  - **Pendência D:** KPIs definidos por flag no MapaAloc sem validação de rótulo — flag `kpi_ebitda = Sim` pode estar na linha errada sem alerta; validar na `check` ou no ETL.
+  - **Pendência E:** Fallback saldo zero sem trilha de correção — quando saldo real é preenchido, relatório anterior não é remarcado como desatualizado. Baixa prioridade para piloto.
 - **Implantação demais clientes (ES, GCG, LA, OS):** aguardar validação piloto AB; criar `etl_<codigo>.py` por cliente. Cadastros em `assets/cad_clientes/` já existem.
 - **`d_Calendario` / `d_Feriados`:** criar somente quando `tem_data_competencia = Sim` ou `tem_data_vencimento = Sim` no `cad_cliente`. AB não usa.
-- **Suite de testes automatizados:** cobrir DRE, DFC simplificado, f_Base, KPIs e integridade do MapaAloc.
+- ~~**Suite de testes automatizados**~~ ✅ **Concluído** — 34 testes em `tests/` (21 unitários + 13 integração). Rodar com `python -m pytest tests/ -v`.
 
 ## Médio prazo
 
