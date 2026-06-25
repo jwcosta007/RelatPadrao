@@ -20,7 +20,7 @@ pip install -r requirements.txt
 ```
 RelatPadrao/
 ├── SDD/                        # Especificação e design (fonte de verdade)
-│   ├── RegrasRelatPadrao.md    # Regras universais — ler antes de implementar
+│   ├── SRS_RegrasRelatPadrao.md    # Regras universais — ler antes de implementar
 │   └── DesignDoc_Relatorio.md   # Paleta de cores e hierarquia visual
 ├── pipeline/                   # Módulos Python do ETL
 │   ├── etl_ab.py               # Orquestrador — ponto de entrada AB Aeterno
@@ -56,7 +56,7 @@ Cada cliente tem um cadastro em `assets/cad_clientes/cad_cliente_<CODIGO>v<N>.md
 - Referência ao arquivo MapaAloc e fonte de lançamentos
 
 O ETL lê esses parâmetros como config hardcoded no `etl_<codigo>.py` correspondente.  
-Detalhes do contrato de dados em `SDD/RegrasRelatPadrao.md`.
+Detalhes do contrato de dados em `SDD/SRS_RegrasRelatPadrao.md`.
 
 ---
 
@@ -72,7 +72,7 @@ Copie `assets/cad_clientes/cad_cliente_ABv03.md` como ponto de partida e salve c
 
 Crie a pasta `assets/<NomeCliente>/` e coloque:
 - Arquivo de lançamentos (`f_Lctos_*.xlsx`)
-- Arquivo MapaAloc (`*_MapaAloc_*.xlsx`) — estrutura de 25 colunas conforme `SDD/RegrasRelatPadrao.md` §2
+- Arquivo MapaAloc (`*_MapaAloc_*.xlsx`) — estrutura de 25 colunas conforme `SDD/SRS_RegrasRelatPadrao.md` §2
 
 **3. Criar o orquestrador ETL**
 

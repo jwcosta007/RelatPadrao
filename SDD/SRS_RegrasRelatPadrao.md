@@ -19,7 +19,7 @@
 
 | Arquivo | Papel | Estado |
 |---|---|---|
-| `RegrasRelatPadrao.md` | **Fonte de verdade corrente** | Este documento |
+| `SRS_RegrasRelatPadrao.md` | **Fonte de verdade corrente** | Este documento |
 | `RegrasRelatPadrao_v14.0.md` / `v13.md` | Substituídos | Remover após validação do v14b |
 | `AZ_Modelo_Padrao_v7.md` | **Histórico — NÃO UTILIZAR** | ⚠️ Estrutura antiga (`fonte_erp`/`segmento` no MapaAloc, customs, contagem antiga). Conflita com v14b. Consultar apenas para arqueologia; **nunca** implementar a partir dele. |
 | `AZ_Proposta_Arquitetura_Greenfield_v1.md` | Backlog migração Python | Não é fonte de verdade; decisões aplicáveis absorvidas aqui |

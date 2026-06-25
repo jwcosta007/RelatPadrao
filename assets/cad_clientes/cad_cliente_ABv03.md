@@ -61,7 +61,7 @@
 
 | Bloco | Qtd | Detalhe |
 |---|---|---|
-| Núcleo universal | 23 | Padrão AZ (ver `SDD/RegrasRelatPadrao.md` §1.2) |
+| Núcleo universal | 23 | Padrão AZ (ver `SDD/SRS_RegrasRelatPadrao.md` §1.2) |
 | Condicionais ligadas | 2 | `conta_bancaria`, `fornecedor_cliente` |
 | KPIs vivos | 9 | Ver §2.1 abaixo |
 | **Total** | **34** | |
@@ -196,5 +196,5 @@ Diferenças estruturais relevantes do piloto vs arquivo novo:
 ---
 
 *Versão 03 — 22/jun/2026*
-*Fonte de verdade de configuração AB Aeterno. Regras universais em `SDD/RegrasRelatPadrao.md`.*
+*Fonte de verdade de configuração AB Aeterno. Regras universais em `SDD/SRS_RegrasRelatPadrao.md`.*
 *Preencher `f_SaldoBancos` (mês de abertura) antes de considerar o DFC completo.*

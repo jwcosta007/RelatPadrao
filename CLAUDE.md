@@ -9,7 +9,7 @@ Cliente ativo: **AB Aeterno**.
 
 | Arquivo | Papel |
 |---|---|
-| `SDD/RegrasRelatPadrao.md` | **Regras universais** — fonte de verdade corrente |
+| `SDD/SRS_RegrasRelatPadrao.md` | **Regras universais** — fonte de verdade corrente |
 | `assets/cad_clientes/cad_cliente_ABv03.md` | **Configuração AB Aeterno** — fonte de verdade do cliente (v03) |
 | `assets/cad_clientes/*.md` | Cadastro de cada cliente |
 | `SDD/DesignDoc_Relatorio.md` | **Paleta de cores e hierarquia visual** — consultar antes de montar DRE/DFC no xlsx |
@@ -55,7 +55,7 @@ RelatPadrao/
 
 ## Guardrails de implementação
 
-> Resumo rápido — fonte autoritativa: `SDD/RegrasRelatPadrao.md` §6.
+> Resumo rápido — fonte autoritativa: `SDD/SRS_RegrasRelatPadrao.md` §6.
 
 - **`_sem_mapa`:** linha fica na `f_Base` **e** vai para `f_Erros` — nunca excluir
 - **`f_SaldoBancos`:** nunca sobrescrever dados reais; seed só na primeira carga
