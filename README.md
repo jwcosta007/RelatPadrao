@@ -20,8 +20,8 @@ pip install pandas openpyxl python-dateutil Pillow
 ```
 RelatPadrao/
 ├── SDD/                        # Especificação e design (fonte de verdade)
-│   ├── RegrasRelatPadrao_v20.md    # Regras universais — ler antes de implementar
-│   └── DesignDoc_Relatorio_v5.md   # Paleta de cores e hierarquia visual
+│   ├── RegrasRelatPadrao.md    # Regras universais — ler antes de implementar
+│   └── DesignDoc_Relatorio.md   # Paleta de cores e hierarquia visual
 ├── pipeline/                   # Módulos Python do ETL
 │   ├── etl_ab.py               # Orquestrador — ponto de entrada AB Aeterno
 │   ├── loader.py               # Leitura de fontes (MapaAloc, f_Lctos, f_SaldoBancos)
@@ -56,7 +56,7 @@ Cada cliente tem um cadastro em `assets/cad_clientes/cad_cliente_<CODIGO>v<N>.md
 - Referência ao arquivo MapaAloc e fonte de lançamentos
 
 O ETL lê esses parâmetros como config hardcoded no `etl_<codigo>.py` correspondente.  
-Detalhes do contrato de dados em `SDD/RegrasRelatPadrao_v20.md`.
+Detalhes do contrato de dados em `SDD/RegrasRelatPadrao.md`.
 
 ---
 

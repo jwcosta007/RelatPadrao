@@ -1,8 +1,8 @@
-# DesignDoc_Relatorio_v5 — Paleta de Cores, Hierarquia Visual e Seletores
+# DesignDoc_Relatorio — Paleta de Cores, Hierarquia Visual e Seletores
 
 **Status:** validado (23/jun/2026)
 **Escopo:** padrão universal AZ Resultados — aplica-se a **todos** os clientes e arquivos de relatório gerados pelo Modelo Padrão. Qualquer desvio deve ser documentado em `cad_cliente/*.md` do cliente em questão.
-**Referência nas regras:** `SDD/RegrasRelatPadrao_v20.md` §11.6
+**Referência nas regras:** `SDD/RegrasRelatPadrao.md` §11.6
 
 ---
 

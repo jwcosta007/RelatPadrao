@@ -9,12 +9,12 @@ Cliente ativo: **AB Aeterno**.
 
 | Arquivo | Papel |
 |---|---|
-| `SDD/RegrasRelatPadrao_v20.md` | **Regras universais** — fonte de verdade corrente (v20) |
+| `SDD/RegrasRelatPadrao.md` | **Regras universais** — fonte de verdade corrente |
 | `assets/cad_clientes/cad_cliente_ABv03.md` | **Configuração AB Aeterno** — fonte de verdade do cliente (v03) |
 | `assets/cad_clientes/*.md` | Cadastro de cada cliente |
-| `SDD/DesignDoc_Relatorio_v5.md` | **Paleta de cores e hierarquia visual** — consultar antes de montar DRE/DFC no xlsx |
+| `SDD/DesignDoc_Relatorio.md` | **Paleta de cores e hierarquia visual** — consultar antes de montar DRE/DFC no xlsx |
 
-Implementar **sempre** a partir do arquivo de maior versão disponível em `SDD/` — os listados acima são os correntes. Versões anteriores são histórico.
+Os arquivos listados acima são as fontes correntes. Versões anteriores estão em `_old/` como histórico.
 
 ## Estrutura de pastas
 
@@ -46,7 +46,7 @@ RelatPadrao/
 - **`mes_corte_realizado`:** `2026-05`
 - **MapaAloc:** `AB_MapaAloc_v11` — 94 categorias, N3-único OK
 - **Eixos secundários:** nenhum — `d_Calendario` e `d_Feriados` **não se aplicam** ao AB
-- **Arquivo de entrega:** `relatorios/AB_RelatFinanceiro_YYYYMMDDHHMM.xlsx` (ex: `AB_RelatFinanceiro_202606250054.xlsx`)
+- **Arquivo de entrega:** `relatorios/{SIGLA}_RelatFinanceiro_{YYYYMMDDHHMM}.xlsx` (ex: `AB_RelatFinanceiro_202606250054.xlsx`)
 
 ### Abas do relatório gerado
 
@@ -73,7 +73,7 @@ RelatPadrao/
 
 ## Roadmap
 
-> Detalhamento completo em `SDD/RegrasRelatPadrao_v20.md` §7.
+> Detalhamento completo em `SDD/RegrasRelatPadrao.md` §7.
 
 ### Próxima iteração (pós-piloto AB)
 

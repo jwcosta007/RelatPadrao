@@ -196,5 +196,5 @@ Diferenças estruturais relevantes do piloto vs arquivo novo:
 ---
 
 *Versão 03 — 22/jun/2026*
-*Fonte de verdade de configuração AB Aeterno. Regras universais em `RegrasRelatPadrao_v20.md`.*
+*Fonte de verdade de configuração AB Aeterno. Regras universais em `SDD/RegrasRelatPadrao.md`.*
 *Preencher `f_SaldoBancos` (mês de abertura) antes de considerar o DFC completo.*

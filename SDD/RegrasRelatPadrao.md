@@ -13,20 +13,20 @@
 > - §11.9.1: % AV corrigida — colunas não criadas (não "ocultadas"); referência ao novo §11.9.3
 > - §11.9.3 NOVO: layout de colunas DFC (estrutura compacta sem interleaving de % AV)
 > - §11.9.3 NOVO: ausência de seletores interativos no DFC (linhas 4-6); controle via DRE
-> - §11.6: referência atualizada para `DesignDoc_Relatorio_v5.md`
+> - §11.6: referência atualizada para `DesignDoc_Relatorio.md`
 >
 > **O que o v19 consolida (v18 → v19):**
 > - §11.9: cobertura de colunas do DFC Resumo por linha (Atividades, CAIXA INÍCIO/FIM, FLUXO, Movimentação Mês)
 > - §11.9: fórmula `_dfc_n1_ano` para blocos ANO A/B das linhas de Atividades
 > - §11.9: % AV **não utilizada** no DFC — colunas PCT_COLS, ACUM_P, ROLL_P existem no layout mas ficam vazias
 > - §11.9: estilo das linhas de Atividades — col B negrito sem fill; colunas de valor → N3 (sem fill, sem negrito)
-> - §11.6: referência atualizada para `DesignDoc_Relatorio_v5.md`
+> - §11.6: referência atualizada para `DesignDoc_Relatorio.md`
 >
 > **O que o v18 consolida (v17 → v18):**
 > - §11.4: rótulos de seletores (B4=`"Unidade"`, B5=`"Mês/Ano"`, E5=`"Projeção"`), merge `F5:G5` para `sel_Projecao`, valores default de `sel_Ancora` e `sel_Projecao`
 > - §11.4: coluna % AV — descrição corrigida para `"% AV"`
 > - §11.4.1: `sel_Projecao` documentado como `F5:G5` mesclado com âncora em `F5`
-> - §11.6: referência atualizada para `DesignDoc_Relatorio_v5.md`
+> - §11.6: referência atualizada para `DesignDoc_Relatorio.md`
 >
 > **O que o v17/v16 consolida (v14b → v17):**
 > - §1.10: convenção de sinal em `f_Lctos`
@@ -63,7 +63,7 @@
 
 | Arquivo | Papel | Estado |
 |---|---|---|
-| `RegrasRelatPadrao_v20.md` | **Fonte de verdade corrente** | Este documento |
+| `RegrasRelatPadrao.md` | **Fonte de verdade corrente** | Este documento |
 | `RegrasRelatPadrao_v14.0.md` / `v13.md` | Substituídos | Remover após validação do v14b |
 | `AZ_Modelo_Padrao_v7.md` | **Histórico — NÃO UTILIZAR** | ⚠️ Estrutura antiga (`fonte_erp`/`segmento` no MapaAloc, customs, contagem antiga). Conflita com v14b. Consultar apenas para arqueologia; **nunca** implementar a partir dele. |
 | `AZ_Proposta_Arquitetura_Greenfield_v1.md` | Backlog migração Python | Não é fonte de verdade; decisões aplicáveis absorvidas aqui |
@@ -760,7 +760,7 @@ Layout padronizado do **DRE Gerencial** *(DFC tem estrutura diferente — ver §
 | `AK6` | — | Ano B | `lista_anos` | `ano(mes_corte_realizado)` |
 | `AJ7`, `AK7` | — | Período dentro do ano | `lista_periodo` | `mês(mes_corte_realizado)` em PT-BR |
 
-> **Rótulos** (B4, B5, E5): células estáticas sem preenchimento. Bordas e estilos conforme `DesignDoc_Relatorio_v5.md` §Seletores.
+> **Rótulos** (B4, B5, E5): células estáticas sem preenchimento. Bordas e estilos conforme `DesignDoc_Relatorio.md` §Seletores.
 > **Defaults ETL:** gravados na primeira carga. O operador pode alterar; o ETL não sobrescreve seletores em cargas subsequentes.
 
 #### 11.4.1 Intervalos nomeados OBRIGATÓRIOS *(Defined Names — não endereços fixos)*
@@ -813,7 +813,7 @@ em §10.2.2). Os demais campos são informacionais.
 
 ### 11.6 Paleta de cores — padrão universal AZ Resultados
 
-Ler `SDD/DesignDoc_Relatorio_v5.md`. O padrão definido nesse documento vale para todos os
+Ler `SDD/DesignDoc_Relatorio.md`. O padrão definido nesse documento vale para todos os
 clientes. Qualquer desvio deve ser declarado explicitamente em `cad_cliente/*.md` do cliente
 em questão.
 
@@ -1166,10 +1166,10 @@ esta janela de regras.
 
 ---
 
-*Versão 17 — 22/jun/2026 — substitui v19. Fonte de verdade corrente. Pendências em aberto no cabeçalho.*
+*Versão 20 — 23/jun/2026 — substitui v19. Fonte de verdade corrente. Pendências em aberto no cabeçalho.*
 *Fonte de verdade corrente. Conteúdo de cliente em `cad_cliente/*.md`.*
 *Contrato `f_Base` = 23 + condicionais_ligadas + kpi_vivos (por cliente).*
 *Contrato MapaAloc = 25 colunas, 5 blocos.*
 *Projeções/Forecast — design FECHADO; implementação pendente por cliente.*
 *v7 e `*_Modelo_v1.md` rebaixados a histórico (§0). Critérios de aceite em §12. Justificativas em §13.*
-*Paleta de cores universal em `SDD/DesignDoc_Relatorio_v5.md` (§11.6). Aba Lista documentada em §11.7.*
+*Paleta de cores universal em `SDD/DesignDoc_Relatorio.md` (§11.6). Aba Lista documentada em §11.7.*
