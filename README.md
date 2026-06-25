@@ -60,6 +60,46 @@ Detalhes do contrato de dados em `SDD/RegrasRelatPadrao.md`.
 
 ---
 
+## Como adicionar um novo cliente
+
+**1. Criar o cadastro do cliente**
+
+Copie `assets/cad_clientes/cad_cliente_ABv03.md` como ponto de partida e salve como
+`assets/cad_clientes/cad_cliente_<CODIGO>v01.md`. Preencha todos os campos da §1
+(BUs, `mes_corte_realizado`, condicionais, MapaAloc, etc.).
+
+**2. Preparar os dados de entrada**
+
+Crie a pasta `assets/<NomeCliente>/` e coloque:
+- Arquivo de lançamentos (`f_Lctos_*.xlsx`)
+- Arquivo MapaAloc (`*_MapaAloc_*.xlsx`) — estrutura de 25 colunas conforme `SDD/RegrasRelatPadrao.md` §2
+
+**3. Criar o orquestrador ETL**
+
+Copie `pipeline/etl_ab.py` como `pipeline/etl_<codigo>.py` e ajuste:
+
+| Seção | O que alterar |
+|---|---|
+| `PATHS` | `LCTOS_PATH`, `MAPA_PATH` apontando para a pasta do cliente |
+| `BU_VALIDOS` | BUs do cliente conforme cadastro |
+| `CAD_CONFIG` | Todos os campos do cad_cliente (codigo, nome, BUs, corte, etc.) |
+| `DRE_CASCADE` | Cascata de KPIs do DRE — específica por cliente |
+| `F_BASE_COLS` | Ajustar se o cliente tiver condicionais diferentes das do AB |
+| `F_SALDO_SEED` | Seed de abertura do f_SaldoBancos (BU, conta, data, valor 0) |
+
+**4. Executar e verificar**
+
+```bash
+python pipeline/etl_<codigo>.py
+```
+
+Verificar no relatório gerado (`relatorios/<CODIGO>_RelatFinanceiro_*.xlsx`):
+- `f_Erros` vazia (0 ocorrências)
+- `_sem_mapa = 0` (todas as categorias mapeadas)
+- Abas DRE e DFC populadas com hierarquia correta
+
+---
+
 ## Abas geradas
 
 | Aba | Conteúdo |
