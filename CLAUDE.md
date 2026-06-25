@@ -41,26 +41,29 @@ RelatPadrao/
 
 ## Cliente AB Aeterno — configuração rápida
 
-- **`f_Base`:** 34 colunas — `23 núcleo + 2 condicionais (conta_bancaria, fornecedor_cliente) + 9 KPIs`
-- **BUs:** `Ab Aeterno | Da Una Vita | Holding` (vêm direto da fonte — `bu_origem = f_Lctos_direto`)
+> Fonte autoritativa: `assets/cad_clientes/cad_cliente_ABv03.md`
+
+- **BUs:** `Ab Aeterno | Da Una Vita | Holding`
 - **`mes_corte_realizado`:** `2026-05`
-- **MapaAloc:** `AB_MapaAloc_v11` — 94 categorias, N3-único OK
+- **MapaAloc:** `AB_MapaAloc_v11` — 94 categorias
 - **Eixos secundários:** nenhum — `d_Calendario` e `d_Feriados` **não se aplicam** ao AB
-- **Arquivo de entrega:** `relatorios/{SIGLA}_RelatFinanceiro_{YYYYMMDDHHMM}.xlsx` (ex: `AB_RelatFinanceiro_202606250054.xlsx`)
+- **Arquivo de entrega:** `relatorios/{SIGLA}_RelatFinanceiro_{YYYYMMDDHHMM}.xlsx`
 
 ### Abas do relatório gerado
 
 `DRE Gerencial` · `DFC` · `KPIs` · `f_Base` · `Lista` · `f_Erros` · `f_SaldoBancos` · `cad_cliente` · `check`
 
-## Regras críticas de implementação
+## Guardrails de implementação
 
-- **`_sem_mapa`:** linha fica na `f_Base` (com `dre_n3`/`dfc_n3` = NULL) **e** vai para `f_Erros` — nunca excluir
-- **`f_SaldoBancos`:** preenchida manualmente pelo operador; ETL lê dados existentes (preserva), aplica seed na primeira carga (Holding PJ/PF, 31/12/2022) — nunca sobrescreve dados reais
+> Resumo rápido — fonte autoritativa: `SDD/RegrasRelatPadrao.md` §6.
+
+- **`_sem_mapa`:** linha fica na `f_Base` **e** vai para `f_Erros` — nunca excluir
+- **`f_SaldoBancos`:** nunca sobrescrever dados reais; seed só na primeira carga
 - **Fallback saldo ausente:** `saldo_inicial = 0` + registro em `f_Erros` — nunca `#N/D`
-- **Corte Realizado×Projeção:** responsabilidade do SUMIFS (`IF(mes<=sel_MesCorte,"Realizado",sel_Projecao)`) — ETL não poda
-- **Intervalos nomeados:** seletores do workbook **sempre** por Defined Name, nunca endereço fixo
-- **KPIs leem `f_Base` direto** — nunca o relatório-fim (DRE/DFC)
-- **Erros técnicos** (BU fora do domínio, `tipo_registro` desconhecido, falha de conversão): vão **só** para `f_Erros`, não entram na `f_Base`
+- **Corte Realizado×Projeção:** responsabilidade do SUMIFS — ETL não poda dados
+- **Seletores:** sempre por Defined Name, nunca endereço fixo
+- **KPIs:** leem `f_Base` direto — nunca o relatório-fim (DRE/DFC)
+- **Erros técnicos:** vão **só** para `f_Erros`, não entram na `f_Base`
 
 ## Decisões de código travadas
 
