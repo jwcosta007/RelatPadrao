@@ -26,15 +26,25 @@ RelatPadrao/
 │   ├── loader.py               # Leitura de fontes (MapaAloc, f_Lctos, f_SaldoBancos)
 │   ├── builder.py              # Geração de estrutura do workbook (DRE, DFC, KPIs, etc.)
 │   └── writer.py               # Escrita/salvamento do workbook Excel
+├── tests/                      # Suite de testes automatizados (pytest)
+│   ├── conftest.py             # Setup de path e fixtures compartilhadas
+│   ├── test_etl.py             # Testes unitários das funções ETL
+│   └── test_workbook.py        # Testes de integração no xlsx gerado
 ├── assets/                     # Recursos e dados de entrada do projeto
 │   ├── logo/                   # Logotipo AZ (usado em todas as abas do workbook)
 │   ├── cad_clientes/           # Cadastro de configuração por cliente
+│   │   ├── cad_cliente_AB.md   # Documentação do cliente (humano)
+│   │   ├── cad_cliente_AB.json # Contrato máquina do cliente (lido pelo ETL)
+│   │   └── cad_cliente_*.md    # Demais clientes (ES, GCG, LA, OS)
 │   └── Piloto/ABAeterno/       # Arquivos de dados do cliente AB
 │       ├── f_Lctos_2023_2026_proj.xlsx
 │       ├── AB_MapaAloc_v11 - Atual utilizado na AB.xlsx
 │       └── ABRelatório_Financeiro_202604abr_V2.1.xlsx  # Referência — não replicar
 ├── relatorios/                 # Arquivos xlsx gerados pelo ETL (output)
 ├── _old/                       # Scripts auxiliares inativos (inspeção, patch, verify)
+├── requirements.txt            # Dependências Python (pip install -r requirements.txt)
+├── ROADMAP.md                  # Visão estratégica de médio e longo prazo
+├── CHANGELOG.md                # Histórico de versões e bugs resolvidos
 └── .claude/
     └── settings.local.json
 ```
