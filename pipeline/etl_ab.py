@@ -2,6 +2,7 @@ import warnings
 warnings.filterwarnings("ignore", category=UserWarning)
 
 import json
+from typing import Any
 import pandas as pd
 from pathlib import Path
 from datetime import datetime
@@ -83,7 +84,7 @@ F_ERROS_COLS = ["id_lcto","data_caixa","categoria","bu",
 # ─────────────────────────────────────────────────────────────────────────────
 # ETL — transformação de dados
 # ─────────────────────────────────────────────────────────────────────────────
-def split_errors(df):
+def split_errors(df: pd.DataFrame) -> tuple[pd.DataFrame, list[dict[str, Any]]]:
     erros, valid = [], pd.Series(True, index=df.index)
 
     def _add(mask, motivo_fn):
@@ -107,7 +108,7 @@ def _err(r, motivo):
                                     "bu","tipo_registro","valor"]} | {"motivo": motivo}
 
 
-def check_mapa_categorias(mapa):
+def check_mapa_categorias(mapa: pd.DataFrame) -> list[dict[str, Any]]:
     dup = mapa.groupby("categoria").size()
     dup = dup[dup > 1]
     return [
@@ -121,7 +122,7 @@ def check_mapa_categorias(mapa):
     ]
 
 
-def enrich(df, mapa):
+def enrich(df: pd.DataFrame, mapa: pd.DataFrame) -> tuple[pd.DataFrame, list[dict[str, Any]]]:
     df = df.merge(mapa, on="categoria", how="left")
     df["_sem_mapa"] = df["dre_n1"].isna()
     df["fonte"]     = df["tipo_registro"].map(MAPA_FONTE)
@@ -138,7 +139,7 @@ def enrich(df, mapa):
     return df, erros
 
 
-def build_f_base(df):
+def build_f_base(df: pd.DataFrame) -> pd.DataFrame:
     for col in F_BASE_COLS:
         if col not in df.columns:
             df[col] = None
