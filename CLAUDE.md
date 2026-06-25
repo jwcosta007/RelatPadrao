@@ -46,9 +46,9 @@ RelatPadrao/
 - **`mes_corte_realizado`:** `2026-05`
 - **MapaAloc:** `AB_MapaAloc_v11` — 94 categorias, N3-único OK
 - **Eixos secundários:** nenhum — `d_Calendario` e `d_Feriados` **não se aplicam** ao AB
-- **Arquivo de entrega:** `relatorios/AB_Relatorio_v1.xlsx`
+- **Arquivo de entrega:** `relatorios/AB_RelatFinanceiro_YYYYMMDDHHMM.xlsx` (ex: `AB_RelatFinanceiro_202606250054.xlsx`)
 
-### Abas do `AB_Relatorio_v1.xlsx`
+### Abas do relatório gerado
 
 `DRE Gerencial` · `DFC` · `KPIs` · `f_Base` · `Lista` · `f_Erros` · `f_SaldoBancos` · `cad_cliente` · `check`
 

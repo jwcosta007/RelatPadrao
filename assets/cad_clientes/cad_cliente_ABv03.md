@@ -186,7 +186,7 @@ Abas que **não devem** existir no arquivo novo:
 `BaseRelatorios` (55 col — substituída), `f_BaseRelat` (staging no Python), `Lctos` (fonte crua),
 `Mapa` (arquivo externo), `d_Calendario` (não aplicável ao AB), `d_Feriados` (não aplicável ao AB).
 
-Abas do arquivo novo (`AB_Relatorio_v1.xlsx`):
+Abas do arquivo gerado (`AB_RelatFinanceiro_YYYYMMDDHHMM.xlsx`):
 `cad_cliente` · `f_Base` · `f_SaldoBancos` · `DRE Gerencial` · `DFC` · `Lista` · `check` · `f_Erros`
 
 Diferenças estruturais relevantes do piloto vs arquivo novo:

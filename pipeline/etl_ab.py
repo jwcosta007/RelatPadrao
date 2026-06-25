@@ -3,6 +3,7 @@ warnings.filterwarnings("ignore", category=UserWarning)
 
 import pandas as pd
 from pathlib import Path
+from datetime import datetime
 
 import loader
 import builder
@@ -11,11 +12,10 @@ import writer
 # ─────────────────────────────────────────────────────────────────────────────
 # PATHS
 # ─────────────────────────────────────────────────────────────────────────────
-BASE_DIR    = Path(r"C:\Dev\projetos\RelatPadrao")
-LCTOS_PATH  = BASE_DIR / "assets" / "Piloto" / "ABAeterno" / "f_Lctos_2023_2026_proj.xlsx"
-MAPA_PATH   = BASE_DIR / "assets" / "Piloto" / "ABAeterno" / "AB_MapaAloc_v11 - Atual utilizado na AB.xlsx"
-OUTPUT_PATH = BASE_DIR / "relatorios" / "AB_Relatorio_v1.xlsx"
-LOGO_PATH   = BASE_DIR / "assets" / "logo" / "5.png"
+BASE_DIR   = Path(r"C:\Dev\projetos\RelatPadrao")
+LCTOS_PATH = BASE_DIR / "assets" / "Piloto" / "ABAeterno" / "f_Lctos_2023_2026_proj.xlsx"
+MAPA_PATH  = BASE_DIR / "assets" / "Piloto" / "ABAeterno" / "AB_MapaAloc_v11 - Atual utilizado na AB.xlsx"
+LOGO_PATH  = BASE_DIR / "assets" / "logo" / "5.png"
 
 # ─────────────────────────────────────────────────────────────────────────────
 # CONFIG AB AETERNO  (cad_cliente_ABv03)
@@ -45,6 +45,9 @@ CAD_CONFIG = {
     "mapaaloc_versao":           "v11",
     "moeda":                     "BRL",
 }
+
+_ts         = datetime.now().strftime("%Y%m%d%H%M")
+OUTPUT_PATH = BASE_DIR / "relatorios" / f"{CAD_CONFIG['codigo']}_RelatFinanceiro_{_ts}.xlsx"
 
 # ─────────────────────────────────────────────────────────────────────────────
 # CASCADE DRE — define posição dos KPIs na cascata (§9 do v16)

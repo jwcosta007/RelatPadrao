@@ -44,7 +44,8 @@ RelatPadrao/
 python pipeline/etl_ab.py
 ```
 
-O arquivo de saída é gerado em `relatorios/AB_Relatorio_v1.xlsx`.
+O arquivo de saída é gerado em `relatorios/` com o nome `{SIGLA}_RelatFinanceiro_{YYYYMMDDHHMM}.xlsx`.
+Exemplo: `AB_RelatFinanceiro_202606250054.xlsx`.
 
 ---
 
