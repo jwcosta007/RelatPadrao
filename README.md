@@ -10,7 +10,7 @@ ETL Python que gera workbooks Excel padronizados (DRE Gerencial, DFC, KPIs) a pa
 - Dependências:
 
 ```bash
-pip install pandas openpyxl python-dateutil Pillow
+pip install -r requirements.txt
 ```
 
 ---
