@@ -10,7 +10,7 @@ Cliente ativo: **AB Aeterno**.
 | Arquivo | Papel |
 |---|---|
 | `SDD/SRS_RegrasRelatPadrao.md` | **Regras universais** — fonte de verdade corrente |
-| `assets/cad_clientes/cad_cliente_ABv03.md` | **Configuração AB Aeterno** — fonte de verdade do cliente (v03) |
+| `assets/cad_clientes/cad_cliente_AB.md` | **Configuração AB Aeterno** — fonte de verdade do cliente |
 | `assets/cad_clientes/*.md` | Cadastro de cada cliente |
 | `SDD/DesignDoc_Relatorio.md` | **Paleta de cores e hierarquia visual** — consultar antes de montar DRE/DFC no xlsx |
 
@@ -41,7 +41,7 @@ RelatPadrao/
 
 ## Cliente AB Aeterno — configuração rápida
 
-> Fonte autoritativa: `assets/cad_clientes/cad_cliente_ABv03.md`
+> Fonte autoritativa: `assets/cad_clientes/cad_cliente_AB.md`
 
 - **BUs:** `Ab Aeterno | Da Una Vita | Holding`
 - **`mes_corte_realizado`:** `2026-05`

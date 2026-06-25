@@ -64,7 +64,7 @@ Detalhes do contrato de dados em `SDD/SRS_RegrasRelatPadrao.md`.
 
 **1. Criar o cadastro do cliente**
 
-Copie `assets/cad_clientes/cad_cliente_ABv03.md` como ponto de partida e salve como
+Copie `assets/cad_clientes/cad_cliente_AB.md` como ponto de partida e salve como
 `assets/cad_clientes/cad_cliente_<CODIGO>v01.md`. Preencha todos os campos da §1
 (BUs, `mes_corte_realizado`, condicionais, MapaAloc, etc.).
 

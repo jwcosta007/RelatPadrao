@@ -109,7 +109,7 @@ pesquisa de diferenças — **não** é filtro de relatório e **não** se mistu
 **Origem do `fonte`:** definido pelo **staging**, com base no mapeamento arquivo/pasta → fonte
 declarado em `cad_cliente.staging_mapa_fonte`. **Não vem do MapaAloc** (`fonte_erp` removido).
 
-Exemplo de mapeamento (ver `cad_cliente_ABv03.md`):
+Exemplo de mapeamento (ver `cad_cliente_AB.md`):
 
 | Arquivo/Pasta | `tipo_registro` | `fonte` resultante |
 |---|---|---|
@@ -1067,10 +1067,10 @@ versões antigas, para a varredura final quando esta janela fechar e o `v15` for
 
 | Arquivo | Menção defasada | Ação |
 |---|---|---|
-| `GCG_Modelo_v1.md` | "34 colunas / v6"; cita `AZ_Modelo_Padrao_v6.md`, `Checkpoint_v7` | Histórico; substituído por `cad_cliente_GCGv01.md` |
-| `AB_Modelo_v1.md` | "37 colunas / v7"; cita `Checkpoint_v8` | Histórico; substituído por `cad_cliente_ABv03.md` |
+| `GCG_Modelo_v1.md` | "34 colunas / v6"; cita `AZ_Modelo_Padrao_v6.md`, `Checkpoint_v7` | Histórico; substituído por `cad_cliente_GCG.md` |
+| `AB_Modelo_v1.md` | "37 colunas / v7"; cita `Checkpoint_v8` | Histórico; substituído por `cad_cliente_AB.md` |
 | `GCG_Modelo_v1.md` §8 | aponta `GCG_PowerQuery_Codigos_M_v2.md` | Verificar existência ou remover referência |
-| `cad_cliente_GCGv01.md` §1 | `doc_especifico = GCG_Modelo_v1.md (defasado)` | Atualizar na janela GCG |
+| `cad_cliente_GCG.md` §1 | `doc_especifico = GCG_Modelo_v1.md (defasado)` | Atualizar na janela GCG |
 
 > `AZ_Modelo_Padrao_v7/v8`, `v13` e Checkpoints `vN` **não estão neste repositório de projeto**
 > — só citados. Se existirem em outro local, aplicar o mesmo rebaixamento do §0.
@@ -1080,7 +1080,7 @@ versões antigas, para a varredura final quando esta janela fechar e o `v15` for
 A exceção `Impostos sobre Resultado` como N1 próprio foi **confirmada na estrutura** (N1 = N2
 = N3, posição correta na cascata, 0 violações de N3-único em DRE e DFC) — porém verificada no
 `Mapa` interno do arquivo-piloto, **não** no `AB_MapaAloc_v11` externo declarado como fonte de
-verdade em `cad_cliente_ABv03`. A revalidação no v11 canônico permanece no checklist de
+verdade em `cad_cliente_AB`. A revalidação no v11 canônico permanece no checklist de
 fechamento mensal do AB (confirmar `dre_n1 = "Impostos sobre Resultado"` e ordem). Não bloqueia
 esta janela de regras.
 

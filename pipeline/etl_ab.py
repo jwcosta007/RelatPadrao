@@ -18,7 +18,7 @@ MAPA_PATH  = BASE_DIR / "assets" / "Piloto" / "ABAeterno" / "AB_MapaAloc_v11 - A
 LOGO_PATH  = BASE_DIR / "assets" / "logo" / "5.png"
 
 # ─────────────────────────────────────────────────────────────────────────────
-# CONFIG AB AETERNO  (cad_cliente_ABv03)
+# CONFIG AB AETERNO  (cad_cliente_AB)
 # ─────────────────────────────────────────────────────────────────────────────
 BU_VALIDOS       = {"Ab Aeterno", "Da Una Vita", "Holding"}
 TIPO_REG_VALIDOS = {"Realizado", "Orçado", "Reforecast"}
@@ -72,7 +72,7 @@ DRE_CASCADE = [
 ]
 
 # ─────────────────────────────────────────────────────────────────────────────
-# CONTRATOS DE COLUNAS  (fonte: cad_cliente_ABv03.md §2.2)
+# CONTRATOS DE COLUNAS  (fonte: cad_cliente_AB.md §2.2)
 # ─────────────────────────────────────────────────────────────────────────────
 F_BASE_COLS = [
     "tipo_registro","data_caixa","historico","categoria","valor","bu",
