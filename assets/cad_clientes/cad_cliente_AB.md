@@ -131,8 +131,17 @@ O staging distingue `fonte` pelo valor de `tipo_registro`.
 
 ## 5. Cascata DRE e exceção `Impostos sobre Resultado`
 
-A cascata de KPIs do DRE está definida em `assets/cad_clientes/cad_cliente_AB.json`
-(chave `dre_cascade`), carregada em runtime pelo `pipeline/etl_ab.py`.
+O arquivo `assets/cad_clientes/cad_cliente_AB.json` é o **contrato máquina** do cliente —
+carregado em runtime pelo `pipeline/etl_ab.py`. Contém:
+
+| Chave | Conteúdo |
+|---|---|
+| `bu_validos` | BUs aceitas pelo ETL na validação de erros técnicos |
+| `tipo_reg_validos` | Valores aceitos de `tipo_registro` |
+| `mapa_fonte` | Mapeamento `tipo_registro → fonte` (campo `fonte` na f_Base) |
+| `mes_corte_realizado` | Mês de corte Realizado×Projeção (formato `AAAA-MM`) |
+| `saldo_seed` | Saldo inicial de `f_SaldoBancos` — zeros provisórios (preencher com saldos reais) |
+| `dre_cascade` | Cascata de KPIs do DRE (ver abaixo) |
 
 ### Exceção — `Impostos sobre Resultado` é N1 próprio
 

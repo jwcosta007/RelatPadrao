@@ -81,3 +81,4 @@ Mudanças de código rastreadas via `git log`.
 | Header de duas linhas no MapaAloc | `Table.Skip(Aba,1)` → `Table.PromoteHeaders` |
 | Campos ausentes preenchidos com placeholder | `null`, nunca `"ND"`/`"BRL"`/string vazia |
 | Mês pt-BR dependente de locale | Lista estática no ETL |
+| `MONTH(1&sel_Periodo)` locale-dependente na fórmula Excel (falha silenciosa em EN-US) | `MATCH(sel_Periodo,lista_periodo,0)` — posição na lista = número do mês, sem dependência de locale |

@@ -68,13 +68,20 @@ Copie `assets/cad_clientes/cad_cliente_AB.md` como ponto de partida e salve como
 `assets/cad_clientes/cad_cliente_<CODIGO>.md`. Preencha todos os campos da §1
 (BUs, `mes_corte_realizado`, condicionais, MapaAloc, etc.).
 
-Crie também `assets/cad_clientes/cad_cliente_<CODIGO>.json` com a cascata DRE,
-seguindo o modelo de `cad_cliente_AB.json`:
+Crie também `assets/cad_clientes/cad_cliente_<CODIGO>.json` — contrato máquina lido
+pelo ETL em runtime. Use `cad_cliente_AB.json` como modelo. Estrutura obrigatória:
 
 ```json
 {
+  "bu_validos": ["BU 1", "BU 2"],
+  "tipo_reg_validos": ["Realizado", "Orçado", "Reforecast"],
+  "mapa_fonte": { "Realizado": "Dados Oficiais", "Orçado": "Orçamento", "Reforecast": "Reforecast" },
+  "mes_corte_realizado": "AAAA-MM",
+  "saldo_seed": [
+    { "data": "AAAA-MM-DD", "BU": "<BU>", "nome_conta": "<conta>", "valor": 0 }
+  ],
   "dre_cascade": [
-    { "n1_names": ["N1_A", "N1_B"], "kpi_label": "NOME DO KPI", "is_roxo": false },
+    { "n1_names": ["N1_A", "N1_B"], "kpi_label": "NOME KPI", "is_roxo": false },
     { "n1_names": ["N1_C"], "kpi_label": "RESULTADO INVESTIDORES", "is_roxo": true }
   ]
 }

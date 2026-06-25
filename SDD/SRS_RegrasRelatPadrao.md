@@ -412,11 +412,16 @@ O gerador nunca emite referência a coluna desligada.
 
 ### 7.1.1 Decisões fechadas (registradas aqui para histórico)
 
-- **`DRE_CASCADE` — localização canônica: `cad_cliente_<CODIGO>.json`** *(fechado 25/jun/2026)*
-  Cascata de KPIs do DRE (quais N1s precedem cada KPI, rótulo e estilo) vive em
-  `assets/cad_clientes/cad_cliente_<CODIGO>.json`, chave `dre_cascade`. O `etl_*.py`
-  carrega via `json.load()`. Exemplo: `cad_cliente_AB.json`. Padrão escolhido antecipa
-  migração para interface web — JSON é formato nativo de API. Ver `cad_cliente_AB.md` §5.
+- **`cad_cliente_<CODIGO>.json` — contrato máquina do cliente** *(fechado 25/jun/2026)*
+  Config operacional lida pelo `etl_*.py` via `json.load()`. Chaves obrigatórias:
+  `bu_validos`, `tipo_reg_validos`, `mapa_fonte`, `mes_corte_realizado`, `saldo_seed`,
+  `dre_cascade`. Padrão escolhido antecipa migração para interface web — JSON é formato
+  nativo de API. Exemplo: `cad_cliente_AB.json`. Ver `cad_cliente_AB.md` §5.
+
+- **`MONTH(1&sel_Periodo)` → `MATCH(sel_Periodo,lista_periodo,0)`** *(fechado 25/jun/2026)*
+  Fórmula de conversão nome-de-mês→número era locale-dependente (falha silenciosa em
+  Excel EN-US). Substituída por `MATCH` contra `lista_periodo` (posições 1–12 = meses
+  1–12) — locale-independent. Ver §11.11.
 
 ### 7.2 Dívida de documentação
 
