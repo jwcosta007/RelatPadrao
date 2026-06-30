@@ -4,10 +4,12 @@ warnings.filterwarnings("ignore", category=UserWarning)
 import re
 import sys
 import json
+import logging
 import importlib
 import pandas as pd
 from pathlib import Path
 from datetime import datetime
+from pydantic import BaseModel, ConfigDict, field_validator, ValidationError
 
 import loader
 import staging
@@ -17,58 +19,69 @@ import charts
 
 BASE_DIR = Path(__file__).parent.parent
 
-_REQUIRED_KEYS: dict[str, type] = {
-    "codigo":                 str,
-    "nome":                   str,
-    "segmento_cliente":       str,
-    "status":                 str,
-    "origem_dados_realizado": str,
-    "bu_validos":             list,
-    "tipo_reg_validos":       list,
-    "mapa_fonte":             dict,
-    "mes_corte_realizado":    str,
-    "dre_cascade":            list,
-}
+log = logging.getLogger("etl")
 
+
+# ─────────────────────────────────────────────────────────────────────────────
+# Schema de validação do cad_cliente_*.json (pydantic)
+# ─────────────────────────────────────────────────────────────────────────────
+
+class _DreCascadeEntry(BaseModel):
+    model_config = ConfigDict(extra="allow")
+    n1_names:  list[str]
+    kpi_label: str
+    is_roxo:   bool
+
+
+class _CadClienteConfig(BaseModel):
+    model_config = ConfigDict(extra="allow")
+    codigo:                 str
+    nome:                   str
+    segmento_cliente:       str
+    status:                 str
+    origem_dados_realizado: str
+    bu_validos:             list[str]
+    tipo_reg_validos:       list[str]
+    mapa_fonte:             dict[str, str]
+    mes_corte_realizado:    str
+    dre_cascade:            list[_DreCascadeEntry]
+
+    @field_validator("mes_corte_realizado")
+    @classmethod
+    def _check_mes_corte(cls, v: str) -> str:
+        if not re.fullmatch(r"\d{4}-\d{2}", v):
+            raise ValueError(f"deve ter formato AAAA-MM, recebeu: {v!r}")
+        return v
+
+    @field_validator("bu_validos")
+    @classmethod
+    def _check_bu_validos(cls, v: list) -> list:
+        if not v:
+            raise ValueError("não pode ser lista vazia")
+        return v
+
+
+# ─────────────────────────────────────────────────────────────────────────────
+# Helpers de carga e validação
+# ─────────────────────────────────────────────────────────────────────────────
 
 def _load_cfg(codigo: str) -> dict:
     cfg_path = BASE_DIR / "assets" / "cad_clientes" / f"cad_cliente_{codigo}.json"
     if not cfg_path.exists():
-        print(f"ERRO: arquivo de configuração não encontrado: {cfg_path}")
+        log.error(f"ERRO: arquivo de configuração não encontrado: {cfg_path}")
         sys.exit(1)
     with open(cfg_path, encoding="utf-8") as f:
         return json.load(f)
 
 
 def _validate_cfg(cfg: dict, codigo: str) -> None:
-    errors = []
-
-    for key, expected in _REQUIRED_KEYS.items():
-        if key not in cfg:
-            errors.append(f"chave obrigatória ausente: '{key}'")
-        elif not isinstance(cfg[key], expected):
-            errors.append(
-                f"'{key}' deve ser {expected.__name__}, "
-                f"recebeu {type(cfg[key]).__name__}"
-            )
-
-    if not errors:
-        if not re.fullmatch(r"\d{4}-\d{2}", cfg.get("mes_corte_realizado", "")):
-            errors.append(
-                f"'mes_corte_realizado' deve ter formato AAAA-MM, "
-                f"recebeu: {cfg.get('mes_corte_realizado')!r}"
-            )
-        if not cfg.get("bu_validos"):
-            errors.append("'bu_validos' não pode ser lista vazia")
-        for i, entry in enumerate(cfg.get("dre_cascade", [])):
-            for k in ("n1_names", "kpi_label", "is_roxo"):
-                if k not in entry:
-                    errors.append(f"dre_cascade[{i}]: chave '{k}' ausente")
-
-    if errors:
-        print(f"ERRO: cad_cliente_{codigo}.json inválido:")
-        for e in errors:
-            print(f"  • {e}")
+    try:
+        _CadClienteConfig(**cfg)
+    except ValidationError as e:
+        log.error(f"ERRO: cad_cliente_{codigo}.json inválido:")
+        for err in e.errors():
+            loc = " → ".join(str(x) for x in err["loc"])
+            log.error(f"  • {loc}: {err['msg']}")
         sys.exit(1)
 
 
@@ -94,9 +107,15 @@ def _build_cad_config(cfg: dict, lctos_dir: Path) -> dict:
     }
 
 
+# ─────────────────────────────────────────────────────────────────────────────
+# Entry point
+# ─────────────────────────────────────────────────────────────────────────────
+
 def main():
+    logging.basicConfig(level=logging.INFO, format="%(message)s", stream=sys.stdout)
+
     if len(sys.argv) < 2:
-        print("Uso: python etl.py <CODIGO_CLIENTE>   ex: python etl.py AB")
+        log.error("Uso: python etl.py <CODIGO_CLIENTE>   ex: python etl.py AB")
         sys.exit(1)
 
     codigo = sys.argv[1].upper()
@@ -108,14 +127,15 @@ def main():
     lctos_dir  = dados_dir / "f_Lctos"
 
     if not dados_dir.exists():
-        print(f"ERRO: pasta de dados do cliente não encontrada: {dados_dir}")
+        log.error(f"ERRO: pasta de dados do cliente não encontrada: {dados_dir}")
         sys.exit(1)
     if not mapa_path.exists():
-        print(f"ERRO: MapaAloc não encontrado: {mapa_path}")
+        log.error(f"ERRO: MapaAloc não encontrado: {mapa_path}")
         sys.exit(1)
     if not lctos_dir.exists():
-        print(f"ERRO: pasta de lançamentos não encontrada: {lctos_dir}")
+        log.error(f"ERRO: pasta de lançamentos não encontrada: {lctos_dir}")
         sys.exit(1)
+
     logo_path   = BASE_DIR / "assets" / "logo" / "5.png"
     ts          = datetime.now().strftime("%Y%m%d%H%M")
     output_path = BASE_DIR / "relatorios" / f"{codigo}_RelatFinanceiro_{ts}.xlsx"
@@ -136,22 +156,22 @@ def main():
     extractor = importlib.import_module(f"extractors.extractor_{codigo.lower()}")
 
     # ── MapaAloc ──────────────────────────────────────────────────────────────
-    print("Carregando MapaAloc...")
+    log.info("Carregando MapaAloc...")
     try:
         mapa = loader.load_mapaaloc(mapa_path)
     except RuntimeError as e:
-        print(f"ERRO: {e}")
+        log.error(f"ERRO: {e}")
         sys.exit(1)
-    print(f"  {len(mapa)} categorias ativas")
+    log.info(f"  {len(mapa)} categorias ativas")
 
     f_base_cols = staging.get_f_base_cols(cfg, mapa)
 
-    print("Verificando integridade do MapaAloc...")
+    log.info("Verificando integridade do MapaAloc...")
     erros_integ = staging.check_mapa_categorias(mapa) + staging.check_mapa_n3_unico(mapa)
     if erros_integ:
-        print(f"  ERRO CRÍTICO: {len(erros_integ)} problema(s) de integridade no MapaAloc")
+        log.error(f"  ERRO CRÍTICO: {len(erros_integ)} problema(s) de integridade no MapaAloc")
         for e in erros_integ:
-            print(f"    {e['motivo']}")
+            log.error(f"    {e['motivo']}")
         f_erros_df   = pd.DataFrame(erros_integ, columns=f_erros_cols)
         f_base_vazia = pd.DataFrame(columns=f_base_cols)
         f_saldo = loader.load_existing_saldo(output_path)
@@ -171,54 +191,54 @@ def main():
         builder.build_cad_cliente(wb, cad_config)
         builder.build_dre(wb, mapa, dre_cascade, mes_corte=mes_corte_date, logo_path=logo_path)
         builder.build_dfc(wb, mapa, mes_corte=mes_corte_date, logo_path=logo_path)
-        print(f"Salvando {output_path.name}...")
+        log.info(f"Salvando {output_path.name}...")
         try:
             writer.save(wb, output_path)
         except OSError as e:
-            print(f"ERRO: {e}")
+            log.error(f"ERRO: {e}")
             sys.exit(1)
-        print(f"\nResumo:")
-        print(f"  ERRO CRÍTICO: MapaAloc com {len(erros_integ)} problema(s) de integridade")
-        print(f"  f_Base  : vazia")
-        print(f"  f_Erros : {len(erros_integ)} ocorrência(s) crítica(s)")
-        print(f"  Salvo em: {output_path}")
+        log.info(f"\nResumo:")
+        log.info(f"  ERRO CRÍTICO: MapaAloc com {len(erros_integ)} problema(s) de integridade")
+        log.info(f"  f_Base  : vazia")
+        log.info(f"  f_Erros : {len(erros_integ)} ocorrência(s) crítica(s)")
+        log.info(f"  Salvo em: {output_path}")
         return
 
-    print(f"  OK — categoria única, N3 único DRE e DFC")
+    log.info(f"  OK — categoria única, N3 único DRE e DFC")
 
     # ── Lançamentos ───────────────────────────────────────────────────────────
-    print("Carregando f_Lctos...")
+    log.info("Carregando f_Lctos...")
     lctos, erros_leitura = extractor.load(lctos_dir, cfg)
-    print(f"  {len(lctos)} linhas")
+    log.info(f"  {len(lctos)} linhas")
     if erros_leitura:
-        print(f"  {len(erros_leitura)} arquivo(s) não pôde(ram) ser lido(s)")
+        log.info(f"  {len(erros_leitura)} arquivo(s) não pôde(ram) ser lido(s)")
 
-    print("Validando erros técnicos...")
+    log.info("Validando erros técnicos...")
     validos, erros_tec = staging.split_errors(lctos, cfg)
-    print(f"  Erros técnicos: {len(erros_tec)} | Válidas: {len(validos)}")
+    log.info(f"  Erros técnicos: {len(erros_tec)} | Válidas: {len(validos)}")
 
-    print("Enriquecendo com MapaAloc...")
+    log.info("Enriquecendo com MapaAloc...")
     enriched, erros_mapa = staging.enrich(validos, mapa, cfg)
-    print(f"  _sem_mapa: {enriched['_sem_mapa'].sum()}")
+    log.info(f"  _sem_mapa: {enriched['_sem_mapa'].sum()}")
 
     all_erros = erros_leitura + erros_tec + erros_mapa
 
-    print("Verificando f_SaldoBancos...")
+    log.info("Verificando f_SaldoBancos...")
     f_saldo = loader.load_existing_saldo(output_path)
     if f_saldo.empty:
         f_saldo = f_saldo_seed.copy()
-        print(f"  Sem dados — seed aplicado ({len(f_saldo)} linhas)")
+        log.info(f"  Sem dados — seed aplicado ({len(f_saldo)} linhas)")
     else:
-        print(f"  {len(f_saldo)} linhas preservadas")
+        log.info(f"  {len(f_saldo)} linhas preservadas")
 
-    print("Montando f_Base...")
+    log.info("Montando f_Base...")
     f_base = staging.build_f_base(enriched, f_base_cols)
-    print(f"  {len(f_base)} linhas × {len(f_base.columns)} colunas")
+    log.info(f"  {len(f_base)} linhas × {len(f_base.columns)} colunas")
 
     f_erros_df = pd.DataFrame(all_erros if all_erros else [], columns=f_erros_cols)
 
     # ── Workbook ──────────────────────────────────────────────────────────────
-    print("Construindo workbook...")
+    log.info("Construindo workbook...")
     wb = writer.create_workbook()
 
     wb.create_sheet("DRE Gerencial")
@@ -237,21 +257,21 @@ def main():
     builder.build_dfc(wb, mapa, mes_corte=mes_corte_date, logo_path=logo_path)
     builder.build_kpi(wb, mes_corte=mes_corte_date, logo_path=logo_path)
 
-    print(f"Salvando {output_path.name}...")
+    log.info(f"Salvando {output_path.name}...")
     try:
         writer.save(wb, output_path)
         charts.patch_charts(output_path)
     except OSError as e:
-        print(f"ERRO: {e}")
+        log.error(f"ERRO: {e}")
         sys.exit(1)
 
-    print(f"\nResumo:")
-    print(f"  f_Base  : {len(f_base)} linhas, {len(f_base.columns)} colunas")
-    print(f"  f_Erros : {len(all_erros)} ocorrências")
-    print(f"    Erros de leitura : {len(erros_leitura)}")
-    print(f"    Erros técnicos   : {len(erros_tec)}")
-    print(f"    _sem_mapa        : {len(erros_mapa)}")
-    print(f"  Salvo em: {output_path}")
+    log.info(f"\nResumo:")
+    log.info(f"  f_Base  : {len(f_base)} linhas, {len(f_base.columns)} colunas")
+    log.info(f"  f_Erros : {len(all_erros)} ocorrências")
+    log.info(f"    Erros de leitura : {len(erros_leitura)}")
+    log.info(f"    Erros técnicos   : {len(erros_tec)}")
+    log.info(f"    _sem_mapa        : {len(erros_mapa)}")
+    log.info(f"  Salvo em: {output_path}")
 
 
 if __name__ == "__main__":
