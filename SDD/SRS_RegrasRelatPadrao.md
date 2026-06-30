@@ -9,7 +9,7 @@
 | Arquivo | Papel | Estado |
 |---|---|---|
 | `SRS_RegrasRelatPadrao.md` | **Fonte de verdade corrente** | Este documento |
-| `RegrasRelatPadrao_v14.0.md` / `v13.md` | Substituídos | Em `_old/` — podem ser removidos |
+| `RegrasRelatPadrao_v14.0.md` / `v13.md` | Substituídos | Em `_old/` — histórico |
 | `AZ_Modelo_Padrao_v7.md` | **Histórico — NÃO UTILIZAR** | ⚠️ Estrutura antiga (`fonte_erp`/`segmento` no MapaAloc, customs, contagem antiga). Conflita com o SRS corrente. Consultar apenas para arqueologia; **nunca** implementar a partir dele. |
 | `AZ_Proposta_Arquitetura_Greenfield_v1.md` | Backlog migração Python | Não é fonte de verdade; decisões aplicáveis absorvidas aqui |
 | `Modelo_MapaAloc_v2_.xlsx` | Template MapaAloc | Estado atual, não alvo. Pendente atualização para estrutura v14b (25 col / 5 blocos, ver §7.2) |
@@ -469,8 +469,7 @@ O gerador nunca emite referência a coluna desligada.
 
 - **`cad_cliente_<CODIGO>.json` — contrato máquina do cliente** *(fechado 25/jun/2026)*
   Config operacional lida pelo `etl.py` via `json.load()`. Chaves obrigatórias:
-  `bu_validos`, `tipo_reg_validos`, `mapa_fonte`, `mes_corte_realizado`, `saldo_seed`,
-  `dre_cascade`. Padrão escolhido antecipa migração para interface web — JSON é formato
+  `bu_validos`, `tipo_reg_validos`, `mapa_fonte`, `mes_corte_realizado`, `dre_cascade`. Padrão escolhido antecipa migração para interface web — JSON é formato
   nativo de API. Exemplo: `cad_cliente_AB.json`. Ver `cad_cliente_AB.md` §5.
 
 - **`MONTH(1&sel_Periodo)` → `MATCH(sel_Periodo,lista_periodo,0)`** *(fechado 25/jun/2026)*
@@ -483,17 +482,8 @@ O gerador nunca emite referência a coluna desligada.
   projeto ETL: escopo limitado, dependências estáveis, atualização de patches de segurança
   sem edição manual. Reavaliar para `==` ao migrar para produção web multi-tenant.
 
-- **Commits em português descritivo** *(fechado 25/jun/2026)*
-  A skill `azr-code` exige Conventional Commits em inglês (`feat(scope): description`).
-  Mantido PT-BR neste projeto: histórico já iniciado em português, contexto solo BR,
-  sem CI que valide o formato. Adotar Conventional Commits em inglês nos próximos
-  projetos com pipeline AZ formal (`Tasks_v[n].md`).
-
 ### 7.2 Dívida de documentação
 
-- `AZ_Modelo_Padrao_v7 → v8`: `segmento`/`moeda` → cad_cliente; `f_Base`; contrato
-  parametrizado; `fonte` (origem staging); `_sem_mapa` (dre_n1 IS NULL); `tipo_registro`
-  3-valores + corte de projeção (§10).
 - `Modelo_MapaAloc_v2_.xlsx` → atualizar template para estrutura corrente (25 colunas, 5 blocos,
   incluindo `tem_fornecedor_cliente` no cad_cliente).
 - Remover `RegrasRelatPadrao_v13.md` após validação.
@@ -906,7 +896,7 @@ Sem separadores entre itens do resumo.
 | Linha | VAL_COLS (C–O) | % AV |
 |---|---|---|
 | Atividades (×4) | SUMIFS `dfc_n1` + corte | — |
-| CAIXA INÍCIO | `f_SaldoBancos` EOMONTH / cadeia FIM | — |
+| CAIXA INÍCIO | `f_SaldoBancos` EDATE / cadeia FIM | — |
 | CAIXA FIM | INÍCIO + FLUXO (VAL_COLS) | — |
 | FLUXO DE CAIXA | Σ 4 Atividades | — |
 | Movimentação Mês | Espelho FLUXO VAL_COLS | — |
@@ -966,11 +956,7 @@ O script de carga é organizado em módulos com responsabilidades distintas:
 | `charts.py` | Cria gráficos (âncora via API openpyxl) e injeta XMLs finais pós-save via ZIP |
 | `writer.py` | Escreve e salva o workbook Excel |
 
-**Regra:** `builder.py` roda a cada carga — não há verificação de diff.
-
-> **Nota de implementação:** a reordenação de abas usa `wb._sheets.sort()` (atributo privado
-> do openpyxl, estável em 3.1.x). Alternativa sem API privada: criar as abas já na ordem
-> correta em `writer.py`. Monitorar em atualizações do openpyxl. O DRE/DFC é sempre regenerado a partir do MapaAloc, garantindo sincronia automática quando N2 ou N3 são adicionados ou alterados.
+**Regra:** `builder.py` roda a cada carga — não há verificação de diff. O DRE/DFC é sempre regenerado a partir do MapaAloc, garantindo sincronia automática quando N2 ou N3 são adicionados ou alterados.
 
 ### 11.11 Fórmulas por bloco de coluna
 
@@ -1141,8 +1127,7 @@ relatório. Quando o operador preencher o mês de abertura, o saldo real entra a
 
 ### 13.5 Inventário de referências defasadas
 
-Rebaixamento do v7 e dos `*_Modelo_v1.md` aplicado em §0. Inventário completo das menções a
-versões antigas, para a varredura final quando esta janela fechar e o `v15` for gerado:
+Documentos históricos rebaixados em §0 ou existentes apenas como menção externa. Não implementar a partir deles.
 
 | Arquivo | Menção defasada | Ação |
 |---|---|---|
@@ -1151,8 +1136,7 @@ versões antigas, para a varredura final quando esta janela fechar e o `v15` for
 | `GCG_Modelo_v1.md` §8 | aponta `GCG_PowerQuery_Codigos_M_v2.md` | Verificar existência ou remover referência |
 | `cad_cliente_GCG.md` §1 | `doc_especifico = GCG_Modelo_v1.md (defasado)` | Atualizar na janela GCG |
 
-> `AZ_Modelo_Padrao_v7/v8`, `v13` e Checkpoints `vN` **não estão neste repositório de projeto**
-> — só citados. Se existirem em outro local, aplicar o mesmo rebaixamento do §0.
+> `AZ_Modelo_Padrao_v7/v8`, `v13` e Checkpoints `vN` não estão neste repositório — só citados.
 
 ### 13.6 Validação do `AB_MapaAloc.xlsx` — pendência legítima, fora do escopo desta janela
 
