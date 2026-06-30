@@ -19,6 +19,9 @@ _old/
 # Output gerado pelo ETL
 relatorios/
 
+# Logs gerados pelo ETL
+logs/
+
 # Configuração local do Claude Code
 .claude/settings.local.json
 

@@ -1,6 +1,7 @@
 import logging
 import pandas as pd
 from pathlib import Path
+from typing import Any
 
 log = logging.getLogger(__name__)
 
@@ -25,7 +26,7 @@ def load_mapaaloc(path: Path) -> pd.DataFrame:
         raise RuntimeError(f"Falha ao ler MapaAloc '{path.name}': {e}") from e
 
 
-def load_f_bancos(bancos_dir: Path, cfg: dict) -> tuple[pd.DataFrame, list[dict]]:
+def load_f_bancos(bancos_dir: Path, cfg: dict) -> tuple[pd.DataFrame, list[dict[str, Any]]]:
     """
     Lê saldos bancários de f_bancos/ por convenção de pasta (SRS §4.2).
     Retorna (DataFrame com F_SALDO_COLS, lista de erros para f_Erros).
@@ -77,7 +78,7 @@ def load_f_bancos(bancos_dir: Path, cfg: dict) -> tuple[pd.DataFrame, list[dict]
 
     # Normalizar data para 1º do mês e detectar duplicatas
     df["_mes_key"] = df["data"].dt.to_period("M")
-    erros: list[dict] = []
+    erros: list[dict[str, Any]] = []
     dup = df.groupby(["BU", "nome_conta", "_mes_key"]).size()
     dup = dup[dup > 1]
     for (bu, conta, mes), count in dup.items():
@@ -95,7 +96,7 @@ def load_f_bancos(bancos_dir: Path, cfg: dict) -> tuple[pd.DataFrame, list[dict]
     return df, erros
 
 
-def _erro_bancos(motivo: str) -> dict:
+def _erro_bancos(motivo: str) -> dict[str, Any]:
     return {
         "id_lcto":       None,
         "data_caixa":    pd.NaT,

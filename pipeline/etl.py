@@ -111,8 +111,27 @@ def _build_cad_config(cfg: dict, lctos_dir: Path) -> dict:
 # Entry point
 # ─────────────────────────────────────────────────────────────────────────────
 
+def _setup_logging() -> None:
+    from logging.handlers import RotatingFileHandler
+    logs_dir = BASE_DIR / "logs"
+    logs_dir.mkdir(exist_ok=True)
+
+    console = logging.StreamHandler(sys.stdout)
+    console.setFormatter(logging.Formatter("%(message)s"))
+
+    file_h = RotatingFileHandler(
+        logs_dir / "etl.log", maxBytes=1_000_000, backupCount=3, encoding="utf-8"
+    )
+    file_h.setFormatter(logging.Formatter("%(asctime)s %(levelname)-8s %(message)s"))
+
+    root = logging.getLogger()
+    root.setLevel(logging.INFO)
+    root.addHandler(console)
+    root.addHandler(file_h)
+
+
 def main():
-    logging.basicConfig(level=logging.INFO, format="%(message)s", stream=sys.stdout)
+    _setup_logging()
 
     if len(sys.argv) < 2:
         log.error("Uso: python etl.py <CODIGO_CLIENTE>   ex: python etl.py AB")
