@@ -1,15 +1,8 @@
 # Regras Modelo Padrão AZ Resultados
-*Versão 20 — 23/jun/2026*
 
-> **Pendências a validar antes de documentar (v20 → v21):**
-> - §11.8 DRE: `DRE_CASCADE` (quais N1 precedem cada KPI) é config de cliente — definir
->   onde vive (etl por cliente, `cad_cliente`, ou seção dedicada)
+> **Pendência em aberto:**
 > - §11.7/§11.8: N3 deduplicado pelo builder — múltiplas categorias com mesmo N3 colapsam
 >   em uma linha; SUMIFS agrega todas. Confirmar se é regra universal ou exceção do builder
-> - §11.9 DFC: seletores do DFC são visuais; named ranges apontam para `'DRE Gerencial'` —
->   documentar como comportamento intencional ou revisar design
->
-> Histórico de versões anteriores em `CHANGELOG.md`.
 
 ---
 
@@ -20,8 +13,8 @@
 | Arquivo | Papel | Estado |
 |---|---|---|
 | `SRS_RegrasRelatPadrao.md` | **Fonte de verdade corrente** | Este documento |
-| `RegrasRelatPadrao_v14.0.md` / `v13.md` | Substituídos | Remover após validação do v14b |
-| `AZ_Modelo_Padrao_v7.md` | **Histórico — NÃO UTILIZAR** | ⚠️ Estrutura antiga (`fonte_erp`/`segmento` no MapaAloc, customs, contagem antiga). Conflita com v14b. Consultar apenas para arqueologia; **nunca** implementar a partir dele. |
+| `RegrasRelatPadrao_v14.0.md` / `v13.md` | Substituídos | Em `_old/` — podem ser removidos |
+| `AZ_Modelo_Padrao_v7.md` | **Histórico — NÃO UTILIZAR** | ⚠️ Estrutura antiga (`fonte_erp`/`segmento` no MapaAloc, customs, contagem antiga). Conflita com o SRS corrente. Consultar apenas para arqueologia; **nunca** implementar a partir dele. |
 | `AZ_Proposta_Arquitetura_Greenfield_v1.md` | Backlog migração Python | Não é fonte de verdade; decisões aplicáveis absorvidas aqui |
 | `Modelo_MapaAloc_v2_.xlsx` | Template MapaAloc | Estado atual, não alvo. Pendente atualização para estrutura v14b (25 col / 5 blocos, ver §7.2) |
 | `cad_cliente/*.md` | **Cadastro por cliente** | Fonte de verdade de configuração e histórico de cada cliente |
@@ -29,8 +22,7 @@
 > ⚠️ **Documentos de cliente `*_Modelo_v1.md` (`AB_Modelo_v1.md`, `GCG_Modelo_v1.md`) são
 > HISTÓRICOS.** Foram substituídos pelos `cad_cliente/*.md`. Contêm referências defasadas
 > (ex.: `GCG_Modelo_v1.md` cita "34 colunas / v6"; `AB_Modelo_v1.md` cita "37 colunas / v7").
-> Não implementar a partir deles. Ver §13.5 para o inventário completo de referências a
-> rebaixar/corrigir na próxima geração de docs.
+> Não implementar a partir deles. Ver §13.5 para o inventário de referências defasadas.
 
 ---
 
@@ -413,7 +405,7 @@ O gerador nunca emite referência a coluna desligada.
 ### 7.1.1 Decisões fechadas (registradas aqui para histórico)
 
 - **`cad_cliente_<CODIGO>.json` — contrato máquina do cliente** *(fechado 25/jun/2026)*
-  Config operacional lida pelo `etl_*.py` via `json.load()`. Chaves obrigatórias:
+  Config operacional lida pelo `etl.py` via `json.load()`. Chaves obrigatórias:
   `bu_validos`, `tipo_reg_validos`, `mapa_fonte`, `mes_corte_realizado`, `saldo_seed`,
   `dre_cascade`. Padrão escolhido antecipa migração para interface web — JSON é formato
   nativo de API. Exemplo: `cad_cliente_AB.json`. Ver `cad_cliente_AB.md` §5.
@@ -439,7 +431,7 @@ O gerador nunca emite referência a coluna desligada.
 - `AZ_Modelo_Padrao_v7 → v8`: `segmento`/`moeda` → cad_cliente; `f_Base`; contrato
   parametrizado; `fonte` (origem staging); `_sem_mapa` (dre_n1 IS NULL); `tipo_registro`
   3-valores + corte de projeção (§10).
-- `Modelo_MapaAloc_v2_.xlsx` → atualizar template para estrutura v14 (25 colunas, 5 blocos,
+- `Modelo_MapaAloc_v2_.xlsx` → atualizar template para estrutura corrente (25 colunas, 5 blocos,
   incluindo `tem_fornecedor_cliente` no cad_cliente).
 - Remover `RegrasRelatPadrao_v13.md` após validação.
 
@@ -1083,7 +1075,7 @@ dado faltante. Escolha: DFC **funcional** com CAIXA Início = 0 + aviso em `f_Er
 vermelha (§4.2). O alerta cumpre o objetivo de "não enganar" sem sacrificar a usabilidade do
 relatório. Quando o operador preencher o mês de abertura, o saldo real entra automaticamente.
 
-### 13.5 Inventário de referências defasadas — corrigir na próxima geração de docs
+### 13.5 Inventário de referências defasadas
 
 Rebaixamento do v7 e dos `*_Modelo_v1.md` aplicado em §0. Inventário completo das menções a
 versões antigas, para a varredura final quando esta janela fechar e o `v15` for gerado:
@@ -1105,10 +1097,10 @@ Validação da exceção `Impostos sobre Resultado` como N1 próprio no `AB_Mapa
 
 ---
 
-*Versão 20 — 23/jun/2026 — substitui v19. Fonte de verdade corrente. Pendências em aberto no cabeçalho.*
-*Fonte de verdade corrente. Conteúdo de cliente em `cad_cliente/*.md`.*
+*Fonte de verdade corrente. Pendência em aberto no cabeçalho.*
+*Conteúdo de cliente em `cad_cliente/*.md`.*
 *Contrato `f_Base` = 23 + condicionais_ligadas + kpi_vivos (por cliente).*
 *Contrato MapaAloc = 25 colunas, 5 blocos.*
 *Projeções/Forecast — design FECHADO; implementação pendente por cliente.*
-*v7 e `*_Modelo_v1.md` rebaixados a histórico (§0). Critérios de aceite em §12. Justificativas em §13.*
+*Documentos antigos rebaixados a histórico (§0). Critérios de aceite em §12. Justificativas em §13.*
 *Paleta de cores universal em `SDD/DesignDoc_Relatorio.md` (§11.6). Aba Lista documentada em §11.7.*

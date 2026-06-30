@@ -1,24 +1,7 @@
 # Cadastro de Cliente — AB Aeterno
-*Versão 03 — 22/jun/2026*
 
 > Fonte de verdade das configurações e histórico da AB Aeterno no Modelo Padrão AZ Resultados.
-> Complementa `RegrasRelatPadrao_v14b.md` com valores concretos do cliente.
->
-> **O que o v03 muda em relação ao v02b:**
-> - Cabeçalho: versão e data atualizados
-> - §1: `staging_mapa_fonte` inclui mapeamento `Reforecast → "Reforecast"` (provisionado — Reforecast previsto ≈ set/2026; sem arquivo vigente)
-> - §1: `reforecast_vigente_ref` atualizado para refletir previsão ≈ set/2026
-> - Referências a `RegrasRelatPadrao_v14b` atualizadas para `RegrasRelatPadrao_v17` em todo o documento
->
-> **O que o v02b muda em relação ao v02:**
-> - §1: nota de formato fixo `AAAA-MM` em `mes_corte_realizado` (alimenta `sel_MesCorte` via DATE — ver v17 §10.2.2)
-> - §7: redação do fallback de `f_SaldoBancos` alinhada ao v17 §4.2 (gatilho = mês de abertura ausente)
-> - Rodapé: referência de regras atualizada para `RegrasRelatPadrao_v17.md`
->
-> **O que o v02 mudou em relação ao v01:**
-> - §1: `tem_fornecedor_cliente = Sim` adicionado ao grupo Colunas condicionais
-> - §2: condicionais ligadas 1 → 2; total f_Base 33 → 34 colunas
-> - §3: fluxo de staging atualizado — `_sem_mapa = TRUE` vai para `f_Base` + `f_Erros` (comportamento inclusivo)
+> Regras universais em `SDD/SRS_RegrasRelatPadrao.md`.
 
 ---
 
@@ -48,7 +31,7 @@
 | | `tem_documento` | `Não` |
 | | `tem_conta_bancaria` | `Sim` |
 | | `tem_fornecedor_cliente` | `Sim` |
-| Projeção | `mes_corte_realizado` | `2026-05` *(formato fixo `AAAA-MM`, mês com 2 dígitos — alimenta `sel_MesCorte` via DATE, v20 §10.2.2)* |
+| Projeção | `mes_corte_realizado` | `2026-05` *(formato fixo `AAAA-MM`, mês com 2 dígitos — alimenta `sel_MesCorte` via DATE, §10.2.2)* |
 | | `reforecast_vigente_ref` | *(null — sem reforecast vigente; previsto ≈ set/2026)* |
 | MapaAloc | `mapaaloc_arquivo` | `AB_MapaAloc_v11 - Atual utilizado na AB.xlsx` |
 | | `mapaaloc_versao` | `v11` |
@@ -94,7 +77,7 @@ kpi_fcf_equity, kpi_provisao, kpi_receita_liquida, kpi_lucro_liquido
 
 > `d_Calendario` e `d_Feriados` **não se aplicam** ao AB: ambos os eixos secundários
 > (`tem_data_competencia` e `tem_data_vencimento`) estão desligados. As 5 colunas de tempo
-> são materializadas diretamente no ETL a partir de `data_caixa`. Ver §6.3 do v20.
+> são materializadas diretamente no ETL a partir de `data_caixa`. Ver §6.3.
 
 ---
 
@@ -206,7 +189,7 @@ Categorias especiais confirmadas no MapaAloc v11:
 
 | Pendência | Impacto | Estado |
 |---|---|---|
-| `f_SaldoBancos` | CAIXA Início do DFC = 0 enquanto faltar o saldo de abertura | Gap ativo — aba criada vazia no workbook. Fallback v20 §4.2: se faltar o mês de abertura (`1º mês do DFC − 1`), `saldo_inicial = 0` + aviso em `f_Erros` ("Saldo de abertura ausente para AAAA-MM"). DFC permanece funcional; **não** usar `#N/D`. |
+| `f_SaldoBancos` | CAIXA Início do DFC = 0 enquanto faltar o saldo de abertura | Gap ativo — aba criada vazia no workbook. Fallback §4.2: se faltar o mês de abertura (`1º mês do DFC − 1`), `saldo_inicial = 0` + aviso em `f_Erros` ("Saldo de abertura ausente para AAAA-MM"). DFC permanece funcional; **não** usar `#N/D`. |
 | Diferença numérica | Total da fonte ≠ controle manual do cliente | Fora de escopo do relatório. Entregar com ressalva explícita. Dado de origem — James fecha em paralelo. |
 
 ---
@@ -229,7 +212,7 @@ Abas que **não devem** existir no arquivo novo:
 `Mapa` (arquivo externo), `d_Calendario` (não aplicável ao AB), `d_Feriados` (não aplicável ao AB).
 
 Abas do arquivo gerado (`AB_RelatFinanceiro_YYYYMMDDHHMM.xlsx`):
-`cad_cliente` · `f_Base` · `f_SaldoBancos` · `DRE Gerencial` · `DFC` · `Lista` · `check` · `f_Erros`
+`DRE Gerencial` · `DFC` · `KPIs` · `f_Base` · `Lista` · `f_Erros` · `f_SaldoBancos` · `cad_cliente` · `check`
 
 Diferenças estruturais relevantes do piloto vs arquivo novo:
 - Campo "Tipo" (Realizado|Orçado) → renomeado "Projeção" (Orçado|Reforecast); Realizado é automático via mes_corte
@@ -237,6 +220,5 @@ Diferenças estruturais relevantes do piloto vs arquivo novo:
 
 ---
 
-*Versão 03 — 22/jun/2026*
 *Fonte de verdade de configuração AB Aeterno. Regras universais em `SDD/SRS_RegrasRelatPadrao.md`.*
 *Preencher `f_SaldoBancos` (mês de abertura) antes de considerar o DFC completo.*
