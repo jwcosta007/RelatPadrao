@@ -32,6 +32,9 @@ def load(folder: Path, cfg: dict) -> tuple[pd.DataFrame, list[dict[str, Any]]]:
         try:
             df = pd.read_excel(f, sheet_name=_SHEET)
             df = df.rename(columns=_COL_MAP)
+            missing = [c for c in _OUT_COLS if c not in df.columns]
+            if missing:
+                raise ValueError(f"colunas ausentes após renomeação: {missing}")
             df["valor"]     = pd.to_numeric(df["valor"], errors="coerce")
             df["categoria"] = df["categoria"].str.strip()
             df["bu"]        = df["bu"].str.strip()

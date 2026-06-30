@@ -26,6 +26,7 @@ RelatPadrao/
 │   ├── staging.py              # Staging universal (validação, JOIN MapaAloc, enriquecimento)
 │   ├── loader.py               # Leitura de MapaAloc e f_SaldoBancos
 │   ├── builder.py              # Geração de estrutura do workbook (DRE, DFC, KPIs, etc.)
+│   ├── charts.py               # Gráficos: criação (openpyxl) + injeção de XML pós-save
 │   ├── writer.py               # Escrita/salvamento do workbook Excel
 │   └── extractors/             # Extratores por cliente/formato de origem
 │       └── extractor_ab.py     # Lê e normaliza dados AB Aeterno (Excel)

@@ -12,14 +12,9 @@ from openpyxl.worksheet.datavalidation import DataValidation
 from openpyxl.drawing.image import Image as XlImage
 from openpyxl.drawing.spreadsheet_drawing import (
     AbsoluteAnchor, XDRPoint2D, XDRPositiveSize2D, pixels_to_EMU,
-    TwoCellAnchor, AnchorMarker as SpreadshAnchor,
 )
-from openpyxl.chart import BarChart, Reference
-from openpyxl.chart.legend import Legend
-from openpyxl.chart.label import DataLabelList
-from openpyxl.chart.data_source import NumFmt as ChartNumFmt, StrRef as ChartStrRef
-from openpyxl.chart.series import SeriesLabel
 from openpyxl.workbook.defined_name import DefinedName
+import charts
 from openpyxl.utils import column_index_from_string as col2idx
 from dateutil.relativedelta import relativedelta
 
@@ -761,54 +756,10 @@ def build_kpi(wb, mes_corte=None, logo_path=None):
     ws.row_dimensions[DATA_ROW + 1].height = H_SEP
 
     # ── Gráfico de colunas: Receita Líquida ───────────────────────────────────
-    # Linhas 11-16: altura 60pt (~12.7cm total, proporção ~2:1 com largura de 26cm)
     for r in range(11, 17):
         ws.row_dimensions[r].height = 60
 
-    chart = BarChart()
-    chart.type      = "col"
-    chart.grouping  = "clustered"
-    # Sem título visível (autoTitleDeleted implícito)
-
-    # Dados e categorias
-    data_ref = Reference(ws, min_col=col2idx("C"), max_col=col2idx("O"),
-                         min_row=DATA_ROW, max_row=DATA_ROW)
-    chart.add_data(data_ref)
-    cats_ref = Reference(ws, min_col=col2idx("C"), max_col=col2idx("O"),
-                         min_row=HDR_ROW)
-    chart.set_categories(cats_ref)
-
-    s = chart.series[0]
-
-    # Nome da série = célula B8 (dinâmico)
-    s.tx = SeriesLabel(strRef=ChartStrRef(f='KPIs!$B$8'))
-
-    # Cor: azul-petróleo fixo (opção B) — sem borda nas barras
-    s.graphicalProperties.solidFill = C_PETROLEO
-    s.invertIfNegative = False
-
-    # Data labels: valores em milhares ("K"), 9pt negrito
-    dlbls = DataLabelList()
-    dlbls.showVal          = True
-    dlbls.showCatName      = False
-    dlbls.showSerName      = False
-    dlbls.showPercent      = False
-    dlbls.showLegendKey    = False
-    dlbls.showLeaderLines  = False
-    dlbls.numFmt = ChartNumFmt(formatCode='#,##0.0,"K"', sourceLinked=False)
-    s.dLbls = dlbls
-
-    # Legenda: topo, sem borda/fill
-    chart.legend = Legend()
-    chart.legend.legendPos = 't'
-    chart.legend.overlay   = False
-
-    # Posição: C11:O16 via TwoCellAnchor
-    anchor = TwoCellAnchor()
-    anchor._from = SpreadshAnchor(col=col2idx("C") - 1, row=10, colOff=0, rowOff=0)
-    anchor.to    = SpreadshAnchor(col=col2idx("O"),     row=15, colOff=0, rowOff=0)
-    ws.add_chart(chart)
-    ws._charts[-1].anchor = anchor
+    charts.build_kpi_receita_liquida(ws, HDR_ROW, DATA_ROW)
 
     # ── Larguras de coluna ────────────────────────────────────────────────────
     ws.column_dimensions['A'].width = _WIDTH_SEP

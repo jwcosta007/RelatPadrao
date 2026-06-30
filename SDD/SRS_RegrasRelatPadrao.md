@@ -935,7 +935,8 @@ O script de carga é organizado em módulos com responsabilidades distintas:
 | `staging.py` | Staging universal: validação, JOIN MapaAloc, enriquecimento, montagem da `f_Base` |
 | `loader.py` | Leitura de fontes universais: MapaAloc e `f_SaldoBancos` existente |
 | `builder.py` | Gera estrutura DRE/DFC/Lista a partir da hierarquia do MapaAloc |
-| `writer.py` | Escreve o workbook com dados e estrutura gerada |
+| `charts.py` | Cria gráficos (âncora via API openpyxl) e injeta XMLs finais pós-save via ZIP |
+| `writer.py` | Escreve e salva o workbook Excel |
 
 **Regra:** `builder.py` roda a cada carga — não há verificação de diff.
 

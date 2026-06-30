@@ -13,10 +13,13 @@ F_SALDO_COLS = ["data", "BU", "nome_conta", "valor"]
 
 
 def load_mapaaloc(path: Path) -> pd.DataFrame:
-    df = pd.read_excel(path, sheet_name="Mapa", skiprows=1)
-    df = df[df["ativo"] == "Sim"].copy()
-    df["categoria"] = df["categoria"].str.strip()
-    return df[MAPA_COLS].reset_index(drop=True)
+    try:
+        df = pd.read_excel(path, sheet_name="Mapa", skiprows=1)
+        df = df[df["ativo"] == "Sim"].copy()
+        df["categoria"] = df["categoria"].str.strip()
+        return df[MAPA_COLS].reset_index(drop=True)
+    except Exception as e:
+        raise RuntimeError(f"Falha ao ler MapaAloc '{path.name}': {e}") from e
 
 
 def load_existing_saldo(output_path: Path) -> pd.DataFrame:

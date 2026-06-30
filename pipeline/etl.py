@@ -13,6 +13,7 @@ import loader
 import staging
 import builder
 import writer
+import charts
 
 BASE_DIR = Path(__file__).parent.parent
 
@@ -136,7 +137,11 @@ def main():
 
     # ── MapaAloc ──────────────────────────────────────────────────────────────
     print("Carregando MapaAloc...")
-    mapa = loader.load_mapaaloc(mapa_path)
+    try:
+        mapa = loader.load_mapaaloc(mapa_path)
+    except RuntimeError as e:
+        print(f"ERRO: {e}")
+        sys.exit(1)
     print(f"  {len(mapa)} categorias ativas")
 
     f_base_cols = staging.get_f_base_cols(cfg, mapa)
@@ -167,7 +172,11 @@ def main():
         builder.build_dre(wb, mapa, dre_cascade, mes_corte=mes_corte_date, logo_path=logo_path)
         builder.build_dfc(wb, mapa, mes_corte=mes_corte_date, logo_path=logo_path)
         print(f"Salvando {output_path.name}...")
-        writer.save(wb, output_path)
+        try:
+            writer.save(wb, output_path)
+        except OSError as e:
+            print(f"ERRO: {e}")
+            sys.exit(1)
         print(f"\nResumo:")
         print(f"  ERRO CRÍTICO: MapaAloc com {len(erros_integ)} problema(s) de integridade")
         print(f"  f_Base  : vazia")
@@ -229,8 +238,12 @@ def main():
     builder.build_kpi(wb, mes_corte=mes_corte_date, logo_path=logo_path)
 
     print(f"Salvando {output_path.name}...")
-    writer.save(wb, output_path)
-    writer.patch_kpi_chart(output_path)
+    try:
+        writer.save(wb, output_path)
+        charts.patch_charts(output_path)
+    except OSError as e:
+        print(f"ERRO: {e}")
+        sys.exit(1)
 
     print(f"\nResumo:")
     print(f"  f_Base  : {len(f_base)} linhas, {len(f_base.columns)} colunas")
