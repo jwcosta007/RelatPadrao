@@ -7,34 +7,6 @@ from openpyxl.utils.dataframe import dataframe_to_rows
 from openpyxl.worksheet.table import Table, TableStyleInfo
 from pathlib import Path
 
-_IGNORED_ERRORS_XML = (
-    b'<ignoredErrors>'
-    b'<ignoredError sqref="C8:AM2000" formula="1"/>'
-    b'</ignoredErrors>'
-)
-
-
-def _suppress_formula_errors(path: Path) -> None:
-    """Injeta ignoredErrors no XML de cada worksheet para suprimir triângulos verdes."""
-    tmp = Path(str(path) + '.tmp')
-    try:
-        with zipfile.ZipFile(path, 'r') as zin:
-            with zipfile.ZipFile(tmp, 'w', zipfile.ZIP_DEFLATED) as zout:
-                for item in zin.infolist():
-                    data = zin.read(item.filename)
-                    if (item.filename.startswith('xl/worksheets/')
-                            and item.filename.endswith('.xml')
-                            and b'ignoredErrors' not in data):
-                        if b'<drawing' in data:
-                            data = data.replace(b'<drawing', _IGNORED_ERRORS_XML + b'<drawing', 1)
-                        else:
-                            data = data.replace(b'</worksheet>', _IGNORED_ERRORS_XML + b'</worksheet>')
-                    zout.writestr(item, data)
-        os.replace(tmp, path)
-    except Exception:
-        if tmp.exists():
-            tmp.unlink(missing_ok=True)
-
 
 def create_workbook() -> openpyxl.Workbook:
     wb = openpyxl.Workbook()

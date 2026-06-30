@@ -23,6 +23,8 @@ def load_existing_saldo(output_path: Path) -> pd.DataFrame:
     if output_path.exists():
         try:
             return pd.read_excel(output_path, sheet_name="f_SaldoBancos")
+        except ValueError:
+            print(f"  Aviso: {output_path.name} existe mas não contém aba 'f_SaldoBancos' — seed será aplicado")
         except Exception:
             pass
     return pd.DataFrame(columns=F_SALDO_COLS)

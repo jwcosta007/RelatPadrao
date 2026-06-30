@@ -19,8 +19,12 @@ ABAS_ESPERADAS = [
 
 
 def _ultimo_relatorio():
-    """Retorna o xlsx mais recente em relatorios/, ou None."""
-    xlsxs = sorted(RELAT_DIR.glob("*.xlsx"), key=lambda p: p.stat().st_mtime, reverse=True)
+    """Retorna o xlsx mais recente em relatorios/, ignorando lock files do Excel (~$...)."""
+    xlsxs = sorted(
+        (p for p in RELAT_DIR.glob("*.xlsx") if not p.name.startswith("~$")),
+        key=lambda p: p.stat().st_mtime,
+        reverse=True,
+    )
     return xlsxs[0] if xlsxs else None
 
 

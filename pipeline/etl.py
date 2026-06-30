@@ -1,6 +1,7 @@
 import warnings
 warnings.filterwarnings("ignore", category=UserWarning)
 
+import re
 import sys
 import json
 import importlib
@@ -15,11 +16,61 @@ import writer
 
 BASE_DIR = Path(__file__).parent.parent
 
+_REQUIRED_KEYS: dict[str, type] = {
+    "codigo":                 str,
+    "nome":                   str,
+    "segmento_cliente":       str,
+    "status":                 str,
+    "origem_dados_realizado": str,
+    "path_lctos":             str,
+    "path_mapa":              str,
+    "bu_validos":             list,
+    "tipo_reg_validos":       list,
+    "mapa_fonte":             dict,
+    "mes_corte_realizado":    str,
+    "dre_cascade":            list,
+}
+
 
 def _load_cfg(codigo: str) -> dict:
     cfg_path = BASE_DIR / "assets" / "cad_clientes" / f"cad_cliente_{codigo}.json"
+    if not cfg_path.exists():
+        print(f"ERRO: arquivo de configuração não encontrado: {cfg_path}")
+        sys.exit(1)
     with open(cfg_path, encoding="utf-8") as f:
         return json.load(f)
+
+
+def _validate_cfg(cfg: dict, codigo: str) -> None:
+    errors = []
+
+    for key, expected in _REQUIRED_KEYS.items():
+        if key not in cfg:
+            errors.append(f"chave obrigatória ausente: '{key}'")
+        elif not isinstance(cfg[key], expected):
+            errors.append(
+                f"'{key}' deve ser {expected.__name__}, "
+                f"recebeu {type(cfg[key]).__name__}"
+            )
+
+    if not errors:
+        if not re.fullmatch(r"\d{4}-\d{2}", cfg.get("mes_corte_realizado", "")):
+            errors.append(
+                f"'mes_corte_realizado' deve ter formato AAAA-MM, "
+                f"recebeu: {cfg.get('mes_corte_realizado')!r}"
+            )
+        if not cfg.get("bu_validos"):
+            errors.append("'bu_validos' não pode ser lista vazia")
+        for i, entry in enumerate(cfg.get("dre_cascade", [])):
+            for k in ("n1_names", "kpi_label", "is_roxo"):
+                if k not in entry:
+                    errors.append(f"dre_cascade[{i}]: chave '{k}' ausente")
+
+    if errors:
+        print(f"ERRO: cad_cliente_{codigo}.json inválido:")
+        for e in errors:
+            print(f"  • {e}")
+        sys.exit(1)
 
 
 def _build_cad_config(cfg: dict, lctos_path: Path) -> dict:
@@ -52,9 +103,17 @@ def main():
 
     codigo = sys.argv[1].upper()
     cfg    = _load_cfg(codigo)
+    _validate_cfg(cfg, codigo)
 
     mapa_path   = BASE_DIR / cfg["path_mapa"]
     lctos_path  = BASE_DIR / cfg["path_lctos"]
+
+    if not mapa_path.exists():
+        print(f"ERRO: arquivo MapaAloc não encontrado: {mapa_path}")
+        sys.exit(1)
+    if not lctos_path.exists():
+        print(f"ERRO: arquivo de lançamentos não encontrado: {lctos_path}")
+        sys.exit(1)
     logo_path   = BASE_DIR / "assets" / "logo" / "5.png"
     ts          = datetime.now().strftime("%Y%m%d%H%M")
     output_path = BASE_DIR / "relatorios" / f"{codigo}_RelatFinanceiro_{ts}.xlsx"

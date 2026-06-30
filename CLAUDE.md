@@ -77,10 +77,6 @@ RelatPadrao/
 - **KPIs:** leem `f_Base` direto — nunca o relatório-fim (DRE/DFC)
 - **Erros técnicos:** vão **só** para `f_Erros`, não entram na `f_Base`
 
-## Decisões de código travadas
-
-- **`_suppress_formula_errors()` (`writer.py`) — DESATIVADA:** causou erro na abertura do arquivo Excel quando acionada; função existe no código mas não é chamada — não reativar sem teste.
-
 ## Pendências AB ativas
 
 - `f_SaldoBancos`: seed aplicado (Holding PJ/PF, 31/12/2022, valor 0) — preencher com saldos reais para DFC funcional; James fecha em paralelo
