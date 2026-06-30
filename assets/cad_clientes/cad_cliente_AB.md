@@ -16,7 +16,8 @@
 | Origem de dados | `origem_dados_realizado` | `Arquivo Empresa` |
 | | `erp_nome` | *(null — sem ERP)* |
 | | `path_lctos_tipo` | `xlsx` |
-| | `path_lctos` | `assets/dados/AB - AB Aeterno/ABAeterno/f_Lctos_2023_2026_proj.xlsx` |
+| | `path_lctos` | `assets/dados/AB - AB Aeterno/f_Lctos/` *(derivado por convenção — SRS §4.4)* |
+| | `path_mapa` | `assets/dados/AB - AB Aeterno/AB_MapaAloc.xlsx` *(derivado por convenção — SRS §4.4)* |
 | | `path_apoio` | *(null)* |
 | Staging | `staging_mapa_fonte` | `tipo_registro=Realizado → "Dados Oficiais"` / `tipo_registro=Orçado → "Orçamento"` / `tipo_registro=Reforecast → "Reforecast"` *(provisionado — Reforecast previsto ≈ set/2026; sem arquivo vigente)* |
 | | `fingerprint_aplicavel` | `Não` |
@@ -33,8 +34,7 @@
 | | `tem_fornecedor_cliente` | `Sim` |
 | Projeção | `mes_corte_realizado` | `2026-05` *(formato fixo `AAAA-MM`, mês com 2 dígitos — alimenta `sel_MesCorte` via DATE, §10.2.2)* |
 | | `reforecast_vigente_ref` | *(null — sem reforecast vigente; previsto ≈ set/2026)* |
-| MapaAloc | `mapaaloc_arquivo` | `AB_MapaAloc_v11 - Atual utilizado na AB.xlsx` |
-| | `mapaaloc_versao` | `v11` |
+| MapaAloc | `mapaaloc_arquivo` | `AB_MapaAloc.xlsx` *(sem versão no nome — o único arquivo na pasta é sempre o corrente)* |
 | Moeda | `moeda` | `BRL` |
 | Doc | `doc_especifico` | *(este arquivo)* |
 
@@ -49,7 +49,7 @@
 | KPIs vivos | 9 | Ver §2.1 abaixo |
 | **Total** | **34** | |
 
-### 2.1 KPIs vivos (≥1 "Sim" no MapaAloc v11)
+### 2.1 KPIs vivos (≥1 "Sim" no MapaAloc)
 
 `kpi_ebitda` · `kpi_mc` · `kpi_cv` · `kpi_cf` · `kpi_fcf_firma` · `kpi_fcf_equity` ·
 `kpi_provisao` · `kpi_receita_liquida` · `kpi_lucro_liquido`
@@ -87,14 +87,15 @@ kpi_fcf_equity, kpi_provisao, kpi_receita_liquida, kpi_lucro_liquido
 Origem: Excel do cliente (Arquivo Empresa)
     │
     ▼
-Camada pré-staging: leitura do Excel → f_Lctos_2023_2026_proj.xlsx
-    │   (arquivo intermediário padronizado — 10 colunas incluindo fornecedor_cliente)
+Camada pré-staging: extractor_ab.py lê arquivo(s) em f_Lctos/
+    │   (aba "f_Lctos" — 8 colunas: data_caixa, historico, categoria, valor, bu,
+    │    conta_bancaria, fornecedor_cliente, tipo_registro)
     ▼
 Staging (Python — etl.py AB → staging.py):
     ├── f_Lctos × MapaAloc (LEFT JOIN por categoria) → enriquece com DRE/DFC/KPIs/sinal
     ├── Define fonte: Realizado → "Dados Oficiais" | Orçado → "Orçamento"
     ├── Gera id_lcto sequencial (intra-carga)
-    ├── Deriva eixo caixa: ano, trimestre, semestre, mes_num (mes_caixa já existe na fonte)
+    ├── Deriva eixo caixa: mes_caixa, ano, trimestre, semestre, mes_num (a partir de data_caixa)
     ├── _sem_mapa = TRUE (dre_n1 IS NULL após JOIN):
     │       → linha FICA na f_Base com dre_n3/dfc_n3 = NULL
     │       → linha TAMBÉM registrada em f_Erros (motivo: "Sem mapeamento no MapaAloc")
@@ -129,8 +130,6 @@ carregado em runtime pelo `pipeline/etl.py`. Contém:
 |---|---|
 | `codigo` / `nome` / `segmento_cliente` / `status` | Identificação do cliente |
 | `origem_dados_realizado` | Tipo de integração da fonte |
-| `path_lctos` | Caminho relativo à raiz do projeto para o arquivo de lançamentos |
-| `path_mapa` | Caminho relativo à raiz do projeto para o MapaAloc |
 | `staging_mapa_fonte` | Descrição legível do mapeamento arquivo → `fonte` |
 | `conversao_defensiva_valor` | `"Sim"` / `"Não"` — converte texto formatado para número |
 | `bu_origem` | Como a BU é derivada (`f_Lctos_direto`, `de_para_conta_bancaria`, etc.) |
@@ -140,10 +139,12 @@ carregado em runtime pelo `pipeline/etl.py`. Contém:
 | `tem_*` | Flags booleanas das colunas condicionais (`tem_conta_bancaria`, etc.) |
 | `mes_corte_realizado` | Mês de corte Realizado×Projeção (formato `AAAA-MM`) |
 | `reforecast_vigente_ref` | Etiqueta de auditoria do reforecast ativo (`null` se inexistente) |
-| `mapaaloc_arquivo` / `mapaaloc_versao` | Identificação do MapaAloc em uso |
+| `mapaaloc_arquivo` | Nome do arquivo MapaAloc (`{SIGLA}_MapaAloc.xlsx`) — sem versão no nome |
 | `moeda` | Moeda do cliente (`"BRL"`) |
 | `saldo_seed` | Saldo inicial de `f_SaldoBancos` — zeros provisórios (preencher com saldos reais) |
 | `dre_cascade` | Cascata de KPIs do DRE (ver abaixo) |
+
+> Paths (`path_lctos`, `path_mapa`) **não estão no JSON** — o ETL os deriva por convenção a partir de `codigo` e `nome`. Ver SRS §4.4.
 
 ### Exceção — `Impostos sobre Resultado` é N1 próprio
 
@@ -161,8 +162,8 @@ Investimentos → Resultado Financeiro → Resultado Não Operacional →
 ### Checklist de governance (fechamento mensal)
 
 A exceção foi confirmada na estrutura do `Mapa` interno do arquivo-piloto, **não** no
-`AB_MapaAloc_v11` externo (fonte de verdade). A cada fechamento mensal, verificar no
-`AB_MapaAloc_v11` canônico que `Impostos sobre Resultado` mantém:
+`AB_MapaAloc.xlsx` externo (fonte de verdade). A cada fechamento mensal, verificar no
+`AB_MapaAloc.xlsx` canônico que `Impostos sobre Resultado` mantém:
 - `dre_n1 = "Impostos sobre Resultado"` (N1 próprio)
 - Posição após `Resultado Não Operacional` e antes de `Lucro Líquido`
 - 0 violações de N3-único em DRE e DFC
@@ -173,13 +174,13 @@ A exceção foi confirmada na estrutura do `Mapa` interno do arquivo-piloto, **n
 
 | Item | Valor |
 |---|---|
-| Arquivo | `AB_MapaAloc_v11 - Atual utilizado na AB.xlsx` |
+| Arquivo | `AB_MapaAloc.xlsx` |
 | Total categorias | 94 |
 | N3-único DRE | 50 distintos / 0 violações |
 | N3-único DFC | 24 distintos / 0 violações |
 | Categorias _sem_mapa | 0 (todas as categorias do f_Lctos encontradas no MapaAloc) |
 
-Categorias especiais confirmadas no MapaAloc v11:
+Categorias especiais confirmadas no MapaAloc:
 - **Efeito Zero** (10 categorias): transferências entre contas/empresas, fatura cartão, reembolsos, aplicações financeiras
 - **SEM_DFC** (2 categorias): `Custo - Provisões RH`, `Provisões RH`
 

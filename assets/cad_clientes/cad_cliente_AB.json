@@ -4,8 +4,6 @@
   "segmento_cliente":          "Servicos",
   "status":                    "Ativo",
   "origem_dados_realizado":    "Arquivo Empresa",
-  "path_lctos":                "assets/dados/AB - AB Aeterno/ABAeterno/f_Lctos_2023_2026_proj.xlsx",
-  "path_mapa":                 "assets/dados/AB - AB Aeterno/ABAeterno/AB_MapaAloc_v11 - Atual utilizado na AB.xlsx",
   "staging_mapa_fonte":        "Realizado→Dados Oficiais | Orçado→Orçamento",
   "conversao_defensiva_valor": "Sim",
   "bu_origem":                 "f_Lctos_direto",
@@ -24,8 +22,7 @@
   "tem_fornecedor_cliente":    true,
   "mes_corte_realizado":       "2026-05",
   "reforecast_vigente_ref":    null,
-  "mapaaloc_arquivo":          "AB_MapaAloc_v11 - Atual utilizado na AB.xlsx",
-  "mapaaloc_versao":           "v11",
+  "mapaaloc_arquivo":          "AB_MapaAloc.xlsx",
   "moeda":                     "BRL",
   "saldo_seed": [
     { "data": "2022-12-31", "BU": "Holding", "nome_conta": "PJ", "valor": 0 },

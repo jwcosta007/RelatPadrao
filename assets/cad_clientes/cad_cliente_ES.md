@@ -1,5 +1,4 @@
 # Cadastro de Cliente — ES
-*Versão 01 — 19/jun/2026*
 
 > ⚠️ **Campos marcados como `[A PREENCHER]` devem ser preenchidos antes de qualquer
 > processamento de dados deste cliente.**
@@ -17,7 +16,6 @@
 | Origem de dados | `origem_dados_realizado` | `[A PREENCHER]` |
 | | `erp_nome` | `[A PREENCHER]` |
 | | `path_lctos_tipo` | `[A PREENCHER]` |
-| | `path_lctos` | `[A PREENCHER]` |
 | | `path_apoio` | `[A PREENCHER]` |
 | Staging | `staging_mapa_fonte` | `[A PREENCHER]` |
 | | `fingerprint_aplicavel` | `[A PREENCHER]` |
@@ -33,8 +31,7 @@
 | | `tem_conta_bancaria` | `[A PREENCHER]` |
 | Projeção | `mes_corte_realizado` | `[A PREENCHER]` |
 | | `reforecast_vigente_ref` | `[A PREENCHER]` |
-| MapaAloc | `mapaaloc_arquivo` | `[A PREENCHER]` |
-| | `mapaaloc_versao` | `[A PREENCHER]` |
+| MapaAloc | `mapaaloc_arquivo` | `[A PREENCHER]` *(ex: `ES_MapaAloc.xlsx`, sem versão no nome)* |
 | Moeda | `moeda` | `[A PREENCHER]` |
 | Doc | `doc_especifico` | `[A PREENCHER]` |
 

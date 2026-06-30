@@ -7,9 +7,11 @@
 
 ## Concluído
 
-- ✅ **Suite de testes automatizados** — 35 testes em `tests/` (22 unitários + 13 integração). Rodar com `python -m pytest tests/ -v`.
+- ✅ **Suite de testes automatizados** — 41 testes em `tests/` (28 unitários + 13 integração). Rodar com `python -m pytest tests/ -v`.
 - ✅ **Reestruturação do pipeline** — entry point único `etl.py <CODIGO>`; extratores por cliente em `extractors/`; staging universal; configuração por JSON.
-- ✅ **Validação do JSON de configuração** — `_validate_cfg()` em `etl.py`; chaves obrigatórias, tipos e paths verificados na carga.
+- ✅ **Validação do JSON de configuração** — `_validate_cfg()` em `etl.py`; chaves obrigatórias, tipos, `mes_corte_realizado` e `dre_cascade` verificados na carga.
+- ✅ **Nova arquitetura de dados de entrada** — `assets/dados/{SIGLA} - {Nome}/`; MapaAloc sem versão no nome; `f_Lctos/` como drop zone. ETL deriva caminhos por convenção (sem `path_mapa`/`path_lctos` no JSON). SRS §4.4.
+- ✅ **Verificação N3-único (DRE e DFC)** — `staging.check_mapa_n3_unico()` executada antes de qualquer carga; ETL para com erro claro se houver violação. SRS §6.1.
 - ✅ **Cliente AB Aeterno em produção** — DRE Gerencial, DFC, KPIs, f_Base, f_Erros, f_SaldoBancos, cad_cliente, Lista, check.
 
 ---

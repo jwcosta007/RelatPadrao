@@ -933,7 +933,7 @@ def build_cad_cliente(wb, config: dict):
         ("BU",              ["bu_origem","bu_valores_validos"]),
         ("Colunas cond.",   ["tem_conta_bancaria","tem_fornecedor_cliente"]),
         ("Projeção",        ["mes_corte_realizado","reforecast_vigente_ref"]),
-        ("MapaAloc",        ["mapaaloc_arquivo","mapaaloc_versao"]),
+        ("MapaAloc",        ["mapaaloc_arquivo"]),
         ("Moeda",           ["moeda"]),
     ]
 

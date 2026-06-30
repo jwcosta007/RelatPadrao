@@ -1,9 +1,5 @@
 # Regras Modelo Padrão AZ Resultados
 
-> **Pendência em aberto:**
-> - §11.7/§11.8: N3 deduplicado pelo builder — múltiplas categorias com mesmo N3 colapsam
->   em uma linha; SUMIFS agrega todas. Confirmar se é regra universal ou exceção do builder
-
 ---
 
 ## 0. Precedência e estado da documentação *(ler primeiro)*
@@ -226,12 +222,12 @@ workbook e um arquivo de referência em `cad_cliente/*.md`.
 | Grupo | Campos |
 |---|---|
 | Identificação | `codigo`, `nome`, `segmento_cliente`, `status` |
-| Origem de dados | `origem_dados_realizado` ("Arquivo Empresa" / "Extrato Bancário" / nome do ERP), `erp_nome`, `path_lctos_tipo`, `path_lctos`, `path_apoio` |
+| Origem de dados | `origem_dados_realizado` ("Arquivo Empresa" / "Extrato Bancário" / nome do ERP), `erp_nome`, `path_lctos_tipo`, `path_apoio` *(caminhos `path_mapa`/`path_lctos` não estão no JSON — derivados por convenção: SRS §4.4)* |
 | Staging | `staging_mapa_fonte` (arquivo/pasta → valor de `fonte`), `fingerprint_aplicavel`, `conversao_defensiva_valor` |
 | BU | `bu_aplicavel`, `bu_origem`, `bu_regra` (texto livre), `bu_valores_validos` (lista — duplo-check) |
 | Colunas condicionais | `tem_data_competencia`, `tem_data_vencimento`, `tem_valor_original`, `tem_documento`, `tem_conta_bancaria`, `tem_fornecedor_cliente` |
 | Projeção | `mes_corte_realizado` (AAAA-MM — último mês de Realizado fechado), `reforecast_vigente_ref` |
-| MapaAloc | `mapaaloc_arquivo`, `mapaaloc_versao` |
+| MapaAloc | `mapaaloc_arquivo` *(sem versão no nome — o único arquivo na pasta do cliente é sempre o corrente; SRS §4.4)* |
 | Moeda | `moeda` |
 | Doc | `doc_especifico` |
 
@@ -318,6 +314,42 @@ para cálculo e não sobrescreve** `f_SaldoBancos`.
    — isento (3 séries coexistem de propósito).
 6. **Próxima evolução:** Bate Saldo DFC × `f_SaldoBancos`
 
+### 4.4 Gestão de dados de entrada — estrutura de pastas e backup
+
+#### Estrutura canônica por cliente
+
+```
+assets/dados/{SIGLA} - {Nome}/
+├── {SIGLA}_MapaAloc.xlsx        ← MapaAloc corrente; sem versão no nome
+└── f_Lctos/                     ← drop zone de lançamentos
+    └── arquivo(s) de lançamentos (qualquer formato suportado pelo extrator do cliente)
+```
+
+O ETL deriva esses caminhos por convenção a partir de `codigo` e `nome` no `cad_cliente_{SIGLA}.json`. Os campos `path_mapa` e `path_lctos` **não existem no JSON** — a convenção é a especificação.
+
+**Regras da drop zone `f_Lctos/`:**
+- Contém somente os arquivos **correntes** (última versão de cada conjunto de dados).
+- Vários arquivos são permitidos (ex.: Conta Azul exporta dois arquivos; Controle Odonto exporta mensalmente).
+- O extrator lê **todos** os arquivos da pasta; arquivos que não puderem ser lidos geram aviso em `f_Erros` sem travar o processo.
+- **Não armazenar backups nesta pasta.** A presença de arquivos extras pode causar duplicação de lançamentos.
+
+**MapaAloc:**
+- Um único arquivo por cliente; sem versão no nome.
+- O arquivo presente é sempre considerado o corrente.
+- Validação de integridade (categoria única + N3 único DRE e DFC) é executada pelo ETL como verificação inicial, antes de qualquer processamento de lançamentos.
+
+#### Política de backup
+
+**Backups de dados de entrada devem ser mantidos fora da estrutura do projeto**, em pasta dedicada do cliente no ambiente do operador (ex.: `~/Documentos/AZ Resultados/Backups/{SIGLA}/`).
+
+| O que fazer | Onde guardar |
+|---|---|
+| Versões anteriores do MapaAloc | Pasta de backup do cliente (fora do projeto) |
+| Arquivos de lançamentos históricos | Pasta de backup do cliente (fora do projeto) |
+| Exports parciais antes de substituir | Pasta de backup do cliente (fora do projeto) |
+
+O versionamento dos **artefatos do projeto** (código, documentação, JSONs de configuração) é feito pelo git. O versionamento dos **dados de entrada** é responsabilidade do operador via backup externo.
+
 ---
 
 ## 5. KPIs lendo a base, NUNCA o relatório-fim
@@ -339,8 +371,11 @@ O gráfico de validação de forecast (§10.6) é uma aplicação direta deste p
 
 ### 6.1 N3-único vale para DRE e DFC
 
-Cada N3 (em `dre_n3` e `dfc_n3`) resolve para exatamente um par (n1, n2). Verificar no
-MapaAloc antes de qualquer carga.
+Cada N3 (em `dre_n3` e `dfc_n3`) resolve para exatamente um par (n1, n2). O ETL verifica
+esta invariante no MapaAloc como primeira checagem, antes de carregar qualquer lançamento.
+Se houver violação, o processo para com erro claro e f_Base fica vazia. Implementado em
+`staging.check_mapa_n3_unico()`. Múltiplas categorias com o mesmo N3 e mesmo N1/N2 são
+**válidas** — o builder colapsa por N3 e os SUMIFS agregam todas.
 
 ### 6.2 Contrato `f_Base` = núcleo universal + condicionais via Camada 0 (§1)
 
@@ -1090,9 +1125,9 @@ versões antigas, para a varredura final quando esta janela fechar e o `v15` for
 > `AZ_Modelo_Padrao_v7/v8`, `v13` e Checkpoints `vN` **não estão neste repositório de projeto**
 > — só citados. Se existirem em outro local, aplicar o mesmo rebaixamento do §0.
 
-### 13.6 Validação do `AB_MapaAloc_v11` externo — pendência legítima, fora do escopo desta janela
+### 13.6 Validação do `AB_MapaAloc.xlsx` — pendência legítima, fora do escopo desta janela
 
-Validação da exceção `Impostos sobre Resultado` como N1 próprio no `AB_MapaAloc_v11` canônico
+Validação da exceção `Impostos sobre Resultado` como N1 próprio no `AB_MapaAloc.xlsx` canônico
 é pendência de governance do cliente AB. Ver `cad_cliente_AB.md` §5.
 
 ---

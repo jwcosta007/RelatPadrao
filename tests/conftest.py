@@ -93,11 +93,11 @@ def lctos_validos():
     return make_lctos(["Cat A", "Cat B"])
 
 
-BASE_DIR  = Path(__file__).parent.parent
-LCTOS_PATH = BASE_DIR / "assets" / "dados" / "AB - AB Aeterno" / "ABAeterno" / "f_Lctos_2023_2026_proj.xlsx"
-MAPA_PATH  = BASE_DIR / "assets" / "dados" / "AB - AB Aeterno" / "ABAeterno" / "AB_MapaAloc_v11 - Atual utilizado na AB.xlsx"
+BASE_DIR   = Path(__file__).parent.parent
+LCTOS_DIR  = BASE_DIR / "assets" / "dados" / "AB - AB Aeterno" / "f_Lctos"
+MAPA_PATH  = BASE_DIR / "assets" / "dados" / "AB - AB Aeterno" / "AB_MapaAloc.xlsx"
 
 dados_disponiveis = pytest.mark.skipif(
-    not LCTOS_PATH.exists() or not MAPA_PATH.exists(),
+    not LCTOS_DIR.exists() or not MAPA_PATH.exists(),
     reason="Dados AB não disponíveis (assets/dados/ é gitignored)"
 )

@@ -34,8 +34,9 @@ RelatPadrao/
 │   ├── logo/                   # Logotipo AZ Resultados
 │   ├── cad_clientes/           # Configuração por cliente (*.md)
 │   └── dados/                      # Dados de entrada por cliente (não versionados)
-│       ├── AB - AB Aeterno/ABAeterno/
-│       └── GCG - GCG Clinica/
+│       ├── AB - AB Aeterno/AB_MapaAloc.xlsx
+│       ├── AB - AB Aeterno/f_Lctos/
+│       └── GCG - GCG Clinica/      (estrutura idêntica)
 ├── relatorios/                 # Output gerado pelo ETL (não versionado)
 ├── _old/                       # Scripts auxiliares inativos
 └── CLAUDE.md                   # Instruções para o assistente de código
@@ -58,7 +59,7 @@ Exemplo: `AB_RelatFinanceiro_202606250054.xlsx`.
 python -m pytest tests/ -v
 ```
 
-- `tests/test_staging.py` — 22 testes unitários (não requerem dados reais)
+- `tests/test_staging.py` — 28 testes unitários (não requerem dados reais)
 - `tests/test_workbook.py` — 13 testes de integração (requerem xlsx em `relatorios/`)
 
 ---
@@ -87,17 +88,15 @@ pelo ETL em runtime. Use `cad_cliente_AB.json` como modelo. Chaves obrigatórias
 
 ```json
 {
-  "codigo": "XX", "nome": "...", "segmento_cliente": "...", "status": "Ativo",
+  "codigo": "XX", "nome": "Nome do Cliente", "segmento_cliente": "...", "status": "Ativo",
   "origem_dados_realizado": "...",
-  "path_lctos": "assets/dados/<pasta>/<arquivo>.xlsx",
-  "path_mapa":  "assets/dados/<pasta>/<MapaAloc>.xlsx",
   "bu_origem": "f_Lctos_direto",
   "bu_validos": ["BU 1", "BU 2"],
   "tipo_reg_validos": ["Realizado", "Orçado", "Reforecast"],
   "mapa_fonte": { "Realizado": "Dados Oficiais", "Orçado": "Orçamento", "Reforecast": "Reforecast" },
   "tem_conta_bancaria": false, "tem_fornecedor_cliente": false,
   "mes_corte_realizado": "AAAA-MM",
-  "mapaaloc_arquivo": "...", "mapaaloc_versao": "v1", "moeda": "BRL",
+  "mapaaloc_arquivo": "XX_MapaAloc.xlsx", "moeda": "BRL",
   "saldo_seed": [{ "data": "AAAA-MM-DD", "BU": "<BU>", "nome_conta": "<conta>", "valor": 0 }],
   "dre_cascade": [
     { "n1_names": ["N1_A", "N1_B"], "kpi_label": "NOME KPI", "is_roxo": false },
@@ -106,24 +105,28 @@ pelo ETL em runtime. Use `cad_cliente_AB.json` como modelo. Chaves obrigatórias
 }
 ```
 
+> Paths não entram no JSON — o ETL os deriva por convenção: `assets/dados/{SIGLA} - {Nome}/{SIGLA}_MapaAloc.xlsx` e `assets/dados/{SIGLA} - {Nome}/f_Lctos/`. Ver SRS §4.4.
+
 **2. Preparar os dados de entrada**
 
-Crie a pasta `assets/dados/<NomeCliente>/` e coloque:
-- Arquivo de lançamentos (`f_Lctos_*.xlsx`)
-- Arquivo MapaAloc (`*_MapaAloc_*.xlsx`) — estrutura de 25 colunas conforme `SDD/SRS_RegrasRelatPadrao.md` §2
+Crie a pasta `assets/dados/{SIGLA} - {Nome}/` e coloque:
+- `{SIGLA}_MapaAloc.xlsx` na raiz da pasta (sem versão no nome — SRS §4.4)
+- Arquivo(s) de lançamentos na subpasta `f_Lctos/` — estrutura de 25 colunas conforme `SDD/SRS_RegrasRelatPadrao.md` §2
 
 **3. Criar o extrator do cliente**
 
 Crie `pipeline/extractors/extractor_<codigo>.py` com a função:
 
 ```python
-def load(path, cfg) -> pd.DataFrame:
-    # lê o arquivo bruto do cliente e retorna DataFrame com colunas:
-    # data_caixa, historico, categoria, valor, bu, tipo_registro
-    # + condicionais ativas (conta_bancaria, fornecedor_cliente, etc.)
+def load(folder: Path, cfg: dict) -> tuple[pd.DataFrame, list[dict]]:
+    # lê todos os arquivos em folder (f_Lctos/), concatena e retorna:
+    #   - DataFrame com colunas: data_caixa, historico, categoria, valor, bu,
+    #     tipo_registro + condicionais ativas (conta_bancaria, etc.)
+    #   - lista de erros de leitura (formato f_Erros) para arquivos não legíveis
 ```
 
 Use `extractor_ab.py` como referência. Toda lógica específica do formato da fonte fica aqui.
+Arquivos não legíveis geram entrada em `f_Erros` sem travar o processo.
 
 **4. Executar e verificar**
 

@@ -55,6 +55,28 @@ def check_mapa_categorias(mapa: pd.DataFrame) -> list[dict[str, Any]]:
     ]
 
 
+def check_mapa_n3_unico(mapa: pd.DataFrame) -> list[dict[str, Any]]:
+    """Verifica que dre_n3 e dfc_n3 cada um resolvem para exatamente um par (N1, N2)."""
+    errors = []
+    for prefix in ("dre", "dfc"):
+        n1, n2, n3 = f"{prefix}_n1", f"{prefix}_n2", f"{prefix}_n3"
+        counts = (
+            mapa.dropna(subset=[n3])
+                .groupby(n3)[[n1, n2]]
+                .nunique()
+        )
+        for val in counts[(counts[n1] > 1) | (counts[n2] > 1)].index:
+            errors.append({
+                "id_lcto": None, "data_caixa": None, "categoria": None,
+                "bu": None, "tipo_registro": None, "valor": None,
+                "motivo": (
+                    f"{n3} {val!r} mapeado para N1/N2 distintos no MapaAloc "
+                    f"— corrigir e recarregar."
+                ),
+            })
+    return errors
+
+
 def split_errors(df: pd.DataFrame, cfg: dict) -> tuple[pd.DataFrame, list[dict[str, Any]]]:
     bu_validos       = set(cfg["bu_validos"])
     tipo_reg_validos = set(cfg["tipo_reg_validos"])

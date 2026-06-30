@@ -8,6 +8,12 @@ import pytest
 import staging
 from conftest import make_mapa, make_lctos, CFG_AB_TEST
 
+_KPI_NOES_2 = {k: ["Não", "Não"] for k in [
+    "kpi_ebitda", "kpi_mc", "kpi_cv", "kpi_cf",
+    "kpi_fcf_firma", "kpi_fcf_equity", "kpi_provisao",
+    "kpi_receita_liquida", "kpi_lucro_liquido",
+]}
+
 
 # ─────────────────────────────────────────────────────────────────────────────
 # check_mapa_categorias
@@ -195,3 +201,81 @@ class TestBuildFBase:
         f_base_cols = staging.get_f_base_cols(cfg_min, mapa)
         f_base = staging.build_f_base(enriched, f_base_cols)
         assert len(f_base.columns) == 23
+
+
+# ─────────────────────────────────────────────────────────────────────────────
+# check_mapa_n3_unico
+# ─────────────────────────────────────────────────────────────────────────────
+
+class TestCheckMapaN3Unico:
+
+    def test_mapa_valido_retorna_lista_vazia(self):
+        mapa = make_mapa(["Cat A", "Cat B"])
+        assert staging.check_mapa_n3_unico(mapa) == []
+
+    def test_mesmo_n3_com_mesmo_n1_n2_e_valido(self):
+        """Múltiplas categorias com mesmo N3 e mesmo N1/N2 é válido — SUMIFS agrega."""
+        mapa = make_mapa(["Cat A", "Cat B"], dre_n3=["N3 X", "N3 X"])
+        assert staging.check_mapa_n3_unico(mapa) == []
+
+    def test_dre_n3_com_n1_distintos_detectado(self):
+        mapa = pd.DataFrame({
+            "categoria": ["Cat A", "Cat B"],
+            "sinal": [1, 1],
+            "dre_n1":   ["N1 Alpha", "N1 Beta"],
+            "dre_n2":   ["N2 X",     "N2 X"],
+            "dre_n3":   ["N3 Dup",   "N3 Dup"],
+            "dre_ordem": [1, 2],
+            "dfc_n1":   ["Op",   "Op"],
+            "dfc_n2":   ["Ent",  "Ent"],
+            "dfc_n3":   ["Cat A", "Cat B"],
+            "dfc_ordem": [1, 2],
+            **_KPI_NOES_2,
+        })
+        erros = staging.check_mapa_n3_unico(mapa)
+        assert len(erros) == 1
+        assert "dre_n3" in erros[0]["motivo"]
+        assert "N3 Dup" in erros[0]["motivo"]
+
+    def test_dfc_n3_com_n1_distintos_detectado(self):
+        mapa = pd.DataFrame({
+            "categoria": ["Cat A", "Cat B"],
+            "sinal": [1, 1],
+            "dre_n1":   ["N1 X",  "N1 X"],
+            "dre_n2":   ["N2 X",  "N2 X"],
+            "dre_n3":   ["Cat A", "Cat B"],
+            "dre_ordem": [1, 2],
+            "dfc_n1":   ["Op",  "Fin"],
+            "dfc_n2":   ["Ent", "Ent"],
+            "dfc_n3":   ["DFC Dup", "DFC Dup"],
+            "dfc_ordem": [1, 2],
+            **_KPI_NOES_2,
+        })
+        erros = staging.check_mapa_n3_unico(mapa)
+        assert len(erros) == 1
+        assert "dfc_n3" in erros[0]["motivo"]
+
+    def test_multiplas_violacoes_dre_e_dfc(self):
+        mapa = pd.DataFrame({
+            "categoria": ["Cat A", "Cat B", "Cat C", "Cat D"],
+            "sinal": [1, 1, 1, 1],
+            "dre_n1":   ["N1 Alpha", "N1 Beta", "N1 X",   "N1 X"],
+            "dre_n2":   ["N2 X",     "N2 X",    "N2 X",   "N2 X"],
+            "dre_n3":   ["N3 Dup",   "N3 Dup",  "Cat C",  "Cat D"],
+            "dre_ordem": [1, 2, 3, 4],
+            "dfc_n1":   ["Op",   "Op",   "Op",      "Fin"],
+            "dfc_n2":   ["Ent",  "Ent",  "Ent",     "Ent"],
+            "dfc_n3":   ["Cat A", "Cat B", "DFC Dup", "DFC Dup"],
+            "dfc_ordem": [1, 2, 3, 4],
+            **{k: ["Não", "Não", "Não", "Não"] for k in [
+                "kpi_ebitda", "kpi_mc", "kpi_cv", "kpi_cf",
+                "kpi_fcf_firma", "kpi_fcf_equity", "kpi_provisao",
+                "kpi_receita_liquida", "kpi_lucro_liquido",
+            ]},
+        })
+        erros = staging.check_mapa_n3_unico(mapa)
+        assert len(erros) == 2
+
+    def test_mapa_vazio_retorna_lista_vazia(self):
+        mapa = make_mapa([])
+        assert staging.check_mapa_n3_unico(mapa) == []

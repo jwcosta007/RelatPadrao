@@ -40,8 +40,9 @@ RelatPadrao/
 │   │   ├── cad_cliente_AB.json # Contrato máquina do cliente (lido pelo ETL)
 │   │   └── cad_cliente_*.md    # Demais clientes (ES, GCG, LA, OS)
 │   └── dados/                  # Dados de entrada por cliente (não versionados)
-│       ├── AB - AB Aeterno/ABAeterno/
-│       └── GCG - GCG Clinica/
+│       ├── AB - AB Aeterno/AB_MapaAloc.xlsx
+│       ├── AB - AB Aeterno/f_Lctos/
+│       └── GCG - GCG Clinica/  (estrutura idêntica)
 ├── relatorios/                 # Arquivos xlsx gerados pelo ETL (output)
 ├── _old/                       # Scripts auxiliares inativos (inspeção, patch, verify)
 ├── requirements.txt            # Dependências Python (pip install -r requirements.txt)
@@ -57,7 +58,7 @@ RelatPadrao/
 
 - **BUs:** `Ab Aeterno | Da Una Vita | Holding`
 - **`mes_corte_realizado`:** `2026-05`
-- **MapaAloc:** `AB_MapaAloc_v11` — 94 categorias
+- **MapaAloc:** `AB_MapaAloc.xlsx` — 94 categorias
 - **Eixos secundários:** nenhum — `d_Calendario` e `d_Feriados` **não se aplicam** ao AB
 - **Arquivo de entrega:** `relatorios/{SIGLA}_RelatFinanceiro_{YYYYMMDDHHMM}.xlsx`
 
