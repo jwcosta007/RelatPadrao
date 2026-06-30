@@ -73,13 +73,21 @@
 
 ### 2.2 Ordem das 34 colunas na `f_Base`
 
+Gerada por `staging.get_f_base_cols()`: núcleo universal → condicionais ligadas → KPIs vivos.
+
 ```
+# Núcleo universal (23) — SRS §1.2
 tipo_registro, data_caixa, historico, categoria, valor, bu,
-fornecedor_cliente, fonte, sinal, id_lcto,
+fonte, sinal, id_lcto,
 mes_caixa, ano, trimestre, semestre, mes_num,
 dre_n1, dre_n2, dre_n3, dre_ordem,
 dfc_n1, dfc_n2, dfc_n3, dfc_ordem,
-_sem_mapa, conta_bancaria,
+_sem_mapa,
+
+# Condicionais ligadas (2) — ordem de _COND_FLAGS em staging.py
+conta_bancaria, fornecedor_cliente,
+
+# KPIs vivos (9) — ordem de _KPI_COLS_ALL em staging.py
 kpi_ebitda, kpi_mc, kpi_cv, kpi_cf, kpi_fcf_firma,
 kpi_fcf_equity, kpi_provisao, kpi_receita_liquida, kpi_lucro_liquido
 ```
