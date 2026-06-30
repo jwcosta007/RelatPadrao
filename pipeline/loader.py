@@ -19,14 +19,6 @@ def load_mapaaloc(path: Path) -> pd.DataFrame:
     return df[MAPA_COLS].reset_index(drop=True)
 
 
-def load_lctos(path: Path) -> pd.DataFrame:
-    df = pd.read_excel(path, sheet_name="Sheet1")
-    df["valor"]     = pd.to_numeric(df["valor"], errors="coerce")
-    df["categoria"] = df["categoria"].str.strip()
-    df["bu"]        = df["bu"].str.strip()
-    return df
-
-
 def load_existing_saldo(output_path: Path) -> pd.DataFrame:
     if output_path.exists():
         try:

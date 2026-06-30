@@ -27,7 +27,7 @@ def _ultimo_relatorio():
 def _skip_sem_relatorio():
     return pytest.mark.skipif(
         _ultimo_relatorio() is None,
-        reason="Nenhum relatório gerado em relatorios/ — execute etl_ab.py primeiro"
+        reason="Nenhum relatório gerado em relatorios/ — execute etl.py AB primeiro"
     )
 
 

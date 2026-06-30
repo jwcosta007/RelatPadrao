@@ -33,7 +33,7 @@
 | Origem de dados | `origem_dados_realizado` | `Arquivo Empresa` |
 | | `erp_nome` | *(null — sem ERP)* |
 | | `path_lctos_tipo` | `xlsx` |
-| | `path_lctos` | `Piloto/ABAeterno/f_Lctos_2023_2026_proj.xlsx` |
+| | `path_lctos` | `assets/dados/AB - AB Aeterno/ABAeterno/f_Lctos_2023_2026_proj.xlsx` |
 | | `path_apoio` | *(null)* |
 | Staging | `staging_mapa_fonte` | `tipo_registro=Realizado → "Dados Oficiais"` / `tipo_registro=Orçado → "Orçamento"` / `tipo_registro=Reforecast → "Reforecast"` *(provisionado — Reforecast previsto ≈ set/2026; sem arquivo vigente)* |
 | | `fingerprint_aplicavel` | `Não` |

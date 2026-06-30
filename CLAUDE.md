@@ -3,7 +3,7 @@
 ## Identidade do projeto
 
 Projeto de construção do **Modelo Padrão de Relatórios AZ Resultados** (ETL Python + workbook Excel).
-Cliente ativo: **AB Aeterno**.
+Clientes: **AB Aeterno** (em produção) · **GCG Clínica** (em desenvolvimento).
 
 ## Fontes de verdade
 
@@ -22,13 +22,16 @@ Os arquivos listados acima são as fontes correntes. Versões anteriores estão 
 RelatPadrao/
 ├── SDD/                        # Documentos de regras (fonte de verdade)
 ├── pipeline/                   # Módulos Python ativos do ETL
-│   ├── etl_ab.py               # Orquestrador AB Aeterno
-│   ├── loader.py               # Leitura de fontes (MapaAloc, f_Lctos, f_SaldoBancos)
+│   ├── etl.py                  # Entry point: python etl.py <CODIGO>
+│   ├── staging.py              # Staging universal (validação, JOIN MapaAloc, enriquecimento)
+│   ├── loader.py               # Leitura de MapaAloc e f_SaldoBancos
 │   ├── builder.py              # Geração de estrutura do workbook (DRE, DFC, KPIs, etc.)
-│   └── writer.py               # Escrita/salvamento do workbook Excel
+│   ├── writer.py               # Escrita/salvamento do workbook Excel
+│   └── extractors/             # Extratores por cliente/formato de origem
+│       └── extractor_ab.py     # Lê e normaliza dados AB Aeterno (Excel)
 ├── tests/                      # Suite de testes automatizados (pytest)
 │   ├── conftest.py             # Setup de path e fixtures compartilhadas
-│   ├── test_etl.py             # Testes unitários das funções ETL
+│   ├── test_staging.py          # Testes unitários do staging (staging.py)
 │   └── test_workbook.py        # Testes de integração no xlsx gerado
 ├── assets/                     # Recursos e dados de entrada do projeto
 │   ├── logo/                   # Logotipo AZ (usado em todas as abas do workbook)
@@ -36,10 +39,9 @@ RelatPadrao/
 │   │   ├── cad_cliente_AB.md   # Documentação do cliente (humano)
 │   │   ├── cad_cliente_AB.json # Contrato máquina do cliente (lido pelo ETL)
 │   │   └── cad_cliente_*.md    # Demais clientes (ES, GCG, LA, OS)
-│   └── Piloto/ABAeterno/       # Arquivos de dados do cliente AB
-│       ├── f_Lctos_2023_2026_proj.xlsx
-│       ├── AB_MapaAloc_v11 - Atual utilizado na AB.xlsx
-│       └── ABRelatório_Financeiro_202604abr_V2.1.xlsx  # Referência — não replicar
+│   └── dados/                  # Dados de entrada por cliente (não versionados)
+│       ├── AB - AB Aeterno/ABAeterno/
+│       └── GCG - GCG Clinica/
 ├── relatorios/                 # Arquivos xlsx gerados pelo ETL (output)
 ├── _old/                       # Scripts auxiliares inativos (inspeção, patch, verify)
 ├── requirements.txt            # Dependências Python (pip install -r requirements.txt)

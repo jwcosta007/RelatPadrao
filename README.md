@@ -30,7 +30,9 @@ RelatPadrao/
 ├── assets/                     # Recursos e dados de entrada
 │   ├── logo/                   # Logotipo AZ Resultados
 │   ├── cad_clientes/           # Configuração por cliente (*.md)
-│   └── Piloto/ABAeterno/       # Dados do cliente AB Aeterno (não versionados)
+│   └── dados/                      # Dados de entrada por cliente (não versionados)
+│       ├── AB - AB Aeterno/ABAeterno/
+│       └── GCG - GCG Clinica/
 ├── relatorios/                 # Output gerado pelo ETL (não versionado)
 ├── _old/                       # Scripts auxiliares inativos
 └── CLAUDE.md                   # Instruções para o assistente de código

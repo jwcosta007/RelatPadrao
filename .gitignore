@@ -11,7 +11,7 @@ env/
 .env
 
 # Dados de entrada — arquivos de cliente (sensíveis)
-assets/Piloto/
+assets/dados/
 
 # Scripts auxiliares inativos e arquivos históricos (xlsx com dados de cliente)
 _old/

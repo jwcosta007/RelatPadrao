@@ -34,15 +34,15 @@ def make_mapa(categorias, dre_n1="Receita Líquida", dre_n3=None):
         "dfc_n2":       ["DFC N2"] * n,
         "dfc_n3":       dre_n3 if dre_n3 else categorias,
         "dfc_ordem":    list(range(n)),
-        "kpi_ebitda":         ["Não"] * n,
-        "kpi_mc":             ["Não"] * n,
-        "kpi_cv":             ["Não"] * n,
-        "kpi_cf":             ["Não"] * n,
-        "kpi_fcf_firma":      ["Não"] * n,
-        "kpi_fcf_equity":     ["Não"] * n,
-        "kpi_provisao":       ["Não"] * n,
-        "kpi_receita_liquida":["Não"] * n,
-        "kpi_lucro_liquido":  ["Não"] * n,
+        "kpi_ebitda":          ["Não"] * n,
+        "kpi_mc":              ["Não"] * n,
+        "kpi_cv":              ["Não"] * n,
+        "kpi_cf":              ["Não"] * n,
+        "kpi_fcf_firma":       ["Não"] * n,
+        "kpi_fcf_equity":      ["Não"] * n,
+        "kpi_provisao":        ["Não"] * n,
+        "kpi_receita_liquida": ["Não"] * n,
+        "kpi_lucro_liquido":   ["Não"] * n,
     })
 
 
@@ -50,15 +50,33 @@ def make_lctos(categorias=None, bus=None, tipos=None, datas=None, valores=None):
     """DataFrame de lançamentos mínimo para testes unitários."""
     n = len(categorias or ["Cat A"])
     return pd.DataFrame({
-        "data_caixa":    datas    or [pd.Timestamp("2024-01-15")] * n,
-        "historico":     ["hist"] * n,
-        "categoria":     categorias or ["Cat A"] * n,
-        "valor":         valores  or [1000.0] * n,
-        "bu":            bus      or ["Ab Aeterno"] * n,
-        "tipo_registro": tipos    or ["Realizado"] * n,
+        "data_caixa":         datas    or [pd.Timestamp("2024-01-15")] * n,
+        "historico":          ["hist"] * n,
+        "categoria":          categorias or ["Cat A"] * n,
+        "valor":              valores  or [1000.0] * n,
+        "bu":                 bus      or ["Ab Aeterno"] * n,
+        "tipo_registro":      tipos    or ["Realizado"] * n,
         "conta_bancaria":     [None] * n,
         "fornecedor_cliente": [None] * n,
     })
+
+
+# Configuração mínima do AB para testes de staging (subset do cad_cliente_AB.json)
+CFG_AB_TEST = {
+    "bu_validos":       ["Ab Aeterno", "Da Una Vita", "Holding"],
+    "tipo_reg_validos": ["Realizado", "Orçado", "Reforecast"],
+    "mapa_fonte": {
+        "Realizado":  "Dados Oficiais",
+        "Orçado":     "Orçamento",
+        "Reforecast": "Reforecast",
+    },
+    "tem_conta_bancaria":     True,
+    "tem_fornecedor_cliente": True,
+    "tem_data_competencia":   False,
+    "tem_data_vencimento":    False,
+    "tem_valor_original":     False,
+    "tem_documento":          False,
+}
 
 
 # ─────────────────────────────────────────────────────────────────────────────
@@ -75,11 +93,11 @@ def lctos_validos():
     return make_lctos(["Cat A", "Cat B"])
 
 
-BASE_DIR = Path(__file__).parent.parent
-LCTOS_PATH = BASE_DIR / "assets" / "Piloto" / "ABAeterno" / "f_Lctos_2023_2026_proj.xlsx"
-MAPA_PATH  = BASE_DIR / "assets" / "Piloto" / "ABAeterno" / "AB_MapaAloc_v11 - Atual utilizado na AB.xlsx"
+BASE_DIR  = Path(__file__).parent.parent
+LCTOS_PATH = BASE_DIR / "assets" / "dados" / "AB - AB Aeterno" / "ABAeterno" / "f_Lctos_2023_2026_proj.xlsx"
+MAPA_PATH  = BASE_DIR / "assets" / "dados" / "AB - AB Aeterno" / "ABAeterno" / "AB_MapaAloc_v11 - Atual utilizado na AB.xlsx"
 
 dados_disponiveis = pytest.mark.skipif(
     not LCTOS_PATH.exists() or not MAPA_PATH.exists(),
-    reason="Dados do piloto AB não disponíveis (assets/Piloto/ é gitignored)"
+    reason="Dados AB não disponíveis (assets/dados/ é gitignored)"
 )
