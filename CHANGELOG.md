@@ -7,6 +7,14 @@ Mudanças de código rastreadas via `git log`.
 
 ## Especificação — Histórico de versões
 
+### v23 (30/jun/2026) — Logging em arquivo e alinhamento de type hints
+
+- `etl.py`: `_setup_logging()` substitui `basicConfig`; grava em `logs/etl.log`
+  via `RotatingFileHandler` (1 MB, 3 backups, UTF-8) além do console.
+- `loader.py`: `list[dict]` → `list[dict[str, Any]]` em `load_f_bancos` e `_erro_bancos`;
+  `from typing import Any` adicionado. Alinha com o padrão de type hints já adotado nos demais módulos.
+- `.gitignore`: `logs/` adicionado.
+
 ### v22 (30/jun/2026) — Contrato universal f_Bancos.xlsx
 
 - §4.2: contrato do arquivo `f_Bancos.xlsx` estabilizado como universal (sem mapeamento por cliente):
