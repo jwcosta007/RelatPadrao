@@ -266,8 +266,8 @@ def _var_abs_f(row):
 
 def _caixa_ini_first(col):
     return (
-        f"=SUMIFS(f_SaldoBancos[valor],"
-        f"f_SaldoBancos[data],EOMONTH({col}${HDR_ROW},-1),"
+        f"=SUMIFS(f_SaldoBancos[saldo],"
+        f"f_SaldoBancos[data],EDATE({col}${HDR_ROW},-1),"
         f"f_SaldoBancos[BU],IF(sel_BU=\"Todas\",\"*\",sel_BU))"
     )
 

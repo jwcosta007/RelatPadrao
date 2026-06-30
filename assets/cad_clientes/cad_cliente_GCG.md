@@ -59,7 +59,24 @@
 
 ---
 
-## 4. Satélite `cad_depara_bu`
+## 4. `f_bancos/` — saldos bancários
+
+Pasta e arquivo já criados (referência de implementação para o padrão):
+
+```
+assets/dados/GCG - GCG Clinica/f_bancos/GCG_f_Bancos.xlsx
+```
+
+Colunas (contrato padrão — SRS §4.2): `data | nome_conta | BU | saldo`
+
+**Estado atual:**
+- Arquivo existe com dados de saldo
+- Valores de BU na coluna `BU` devem corresponder aos `bu_validos` do `cad_cliente_GCG.json` (quando preenchido)
+- O ETL lê automaticamente quando `f_bancos/` existe — nenhuma configuração necessária
+
+---
+
+## 5. Satélite `cad_depara_bu`
 
 Necessário para derivação de BU via conta bancária. Estrutura: `conta_bancaria → bu`.
 

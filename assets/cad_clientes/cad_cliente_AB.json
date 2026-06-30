@@ -24,10 +24,6 @@
   "reforecast_vigente_ref":    null,
   "mapaaloc_arquivo":          "AB_MapaAloc.xlsx",
   "moeda":                     "BRL",
-  "saldo_seed": [
-    { "data": "2022-12-31", "BU": "Holding", "nome_conta": "PJ", "valor": 0 },
-    { "data": "2022-12-31", "BU": "Holding", "nome_conta": "PF", "valor": 0 }
-  ],
   "dre_cascade": [
     {
       "n1_names": ["Receita Líquida"],

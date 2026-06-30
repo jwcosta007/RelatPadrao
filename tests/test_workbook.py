@@ -95,12 +95,19 @@ class TestFErros:
     def test_f_erros_sem_erros_tecnicos(self, workbook):
         ws = workbook["f_Erros"]
         # Linha 1 = cabeçalho; dados começam na linha 2
+        # F_ERROS_COLS: id_lcto(1) data_caixa(2) categoria(3) bu(4) tipo_registro(5) valor(6) motivo(7)
         dados = [
-            ws.cell(row=r, column=7).value  # coluna 'motivo'
+            (ws.cell(row=r, column=3).value,   # categoria
+             ws.cell(row=r, column=7).value)   # motivo
             for r in range(2, ws.max_row + 1)
             if ws.cell(row=r, column=1).value is not None
         ]
-        erros_tecnicos = [m for m in dados if m and "Sem mapeamento" not in str(m)]
+        erros_tecnicos = [
+            m for cat, m in dados
+            if m
+            and "Sem mapeamento" not in str(m)
+            and cat != "[f_SaldoBancos]"   # aviso esperado quando f_bancos/ ausente
+        ]
         assert erros_tecnicos == [], f"Erros técnicos encontrados: {erros_tecnicos}"
 
     def test_f_erros_sem_sem_mapa(self, workbook):

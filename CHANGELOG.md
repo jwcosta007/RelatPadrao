@@ -7,6 +7,31 @@ Mudanças de código rastreadas via `git log`.
 
 ## Especificação — Histórico de versões
 
+### v22 (30/jun/2026) — Contrato universal f_Bancos.xlsx
+
+- §4.2: contrato do arquivo `f_Bancos.xlsx` estabilizado como universal (sem mapeamento por cliente):
+  colunas `data | BU | nome_conta | saldo` em todos os clientes.
+- §4.2: `f_bancos_col_map` **removido** do JSON e do loader — não existe mais.
+- §4.2: normalização de data documentada — qualquer data do mês aceita, convertida para `AAAA-MM-01`.
+- §4.2: duplicatas — mesmo `(BU, nome_conta, mês)`: aviso em `f_Erros`, mantém maior data; não bloqueante.
+- §11.11: fórmula CAIXA INÍCIO corrigida — `EOMONTH(C$7,-1)` → `EDATE(C$7,-1)` (EOMONTH devolvia
+  último dia do mês anterior; com datas no dia 01, EDATE é o correto).
+- §6.9: fallback atualizado — `f_SaldoBancos` vazio (tabela sem linhas), não mais `saldo 0` via seed.
+- `cad_cliente_AB.json`: campo `saldo_seed` removido — substituído pelo mecanismo de `f_bancos/`.
+- `cad_cliente_GCG.md`: seção `f_bancos/` adicionada documentando o arquivo de referência.
+
+### v21 (30/jun/2026) — f_SaldoBancos por convenção de pasta
+
+- §4.2: origem de saldos bancários redesenhada — ETL sempre procura `f_bancos/` na pasta do
+  cliente; presença da pasta ativa leitura; ausência aciona fallback (saldo 0 + aviso em
+  `f_Erros`). Elimina necessidade de flag no `cad_cliente`. Dois avisos distintos:
+  pasta/arquivo ausente vs mês de abertura faltando no arquivo.
+- §4.4: `f_bancos/` adicionada à estrutura canônica de pastas (opcional); nota de que
+  `path_bancos` não existe no JSON — convenção é a especificação.
+- §6.9: decisão travada atualizada para refletir origem por convenção.
+- `cad_cliente_AB.md` §7: débito técnico registrado — criar `f_Bancos.xlsx` para AB.
+- `ROADMAP.md`: item de criação de `f_bancos/` para AB adicionado à próxima iteração.
+
 ### v20 (23/jun/2026) — consolidado de v19
 
 - §11.9.1: % AV corrigida — colunas não criadas (não "ocultadas"); referência ao novo §11.9.2

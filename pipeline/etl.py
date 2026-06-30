@@ -125,6 +125,7 @@ def main():
     dados_dir  = BASE_DIR / "assets" / "dados" / f"{cfg['codigo']} - {cfg['nome']}"
     mapa_path  = dados_dir / f"{cfg['codigo']}_MapaAloc.xlsx"
     lctos_dir  = dados_dir / "f_Lctos"
+    bancos_dir = dados_dir / "f_bancos"
 
     if not dados_dir.exists():
         log.error(f"ERRO: pasta de dados do cliente não encontrada: {dados_dir}")
@@ -145,13 +146,6 @@ def main():
     bu_validos     = set(cfg["bu_validos"])
     cad_config     = _build_cad_config(cfg, lctos_dir)
     f_erros_cols   = staging.F_ERROS_COLS
-
-    f_saldo_seed = pd.DataFrame(
-        [{"data": pd.Timestamp(r["data"]), "BU": r["BU"],
-          "nome_conta": r["nome_conta"], "valor": r["valor"]}
-         for r in cfg.get("saldo_seed", [])],
-        columns=["data", "BU", "nome_conta", "valor"],
-    )
 
     extractor = importlib.import_module(f"extractors.extractor_{codigo.lower()}")
 
@@ -174,9 +168,7 @@ def main():
             log.error(f"    {e['motivo']}")
         f_erros_df   = pd.DataFrame(erros_integ, columns=f_erros_cols)
         f_base_vazia = pd.DataFrame(columns=f_base_cols)
-        f_saldo = loader.load_existing_saldo(output_path)
-        if f_saldo.empty:
-            f_saldo = f_saldo_seed.copy()
+        f_saldo, _ = loader.load_f_bancos(bancos_dir, cfg)
         enriched_vazio = pd.DataFrame(columns=["mes_caixa", "tipo_registro"])
         wb = writer.create_workbook()
         wb.create_sheet("DRE Gerencial")
@@ -223,13 +215,13 @@ def main():
 
     all_erros = erros_leitura + erros_tec + erros_mapa
 
-    log.info("Verificando f_SaldoBancos...")
-    f_saldo = loader.load_existing_saldo(output_path)
+    log.info("Carregando f_SaldoBancos...")
+    f_saldo, erros_bancos = loader.load_f_bancos(bancos_dir, cfg)
     if f_saldo.empty:
-        f_saldo = f_saldo_seed.copy()
-        log.info(f"  Sem dados — seed aplicado ({len(f_saldo)} linhas)")
+        log.info("  f_bancos não encontrado — f_SaldoBancos vazio")
     else:
-        log.info(f"  {len(f_saldo)} linhas preservadas")
+        log.info(f"  {len(f_saldo)} linhas carregadas de f_bancos/")
+    all_erros.extend(erros_bancos)
 
     log.info("Montando f_Base...")
     f_base = staging.build_f_base(enriched, f_base_cols)

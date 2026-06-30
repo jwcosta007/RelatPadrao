@@ -141,7 +141,6 @@ carregado em runtime pelo `pipeline/etl.py`. Contém:
 | `reforecast_vigente_ref` | Etiqueta de auditoria do reforecast ativo (`null` se inexistente) |
 | `mapaaloc_arquivo` | Nome do arquivo MapaAloc (`{SIGLA}_MapaAloc.xlsx`) — sem versão no nome |
 | `moeda` | Moeda do cliente (`"BRL"`) |
-| `saldo_seed` | Saldo inicial de `f_SaldoBancos` — zeros provisórios (preencher com saldos reais) |
 | `dre_cascade` | Cascata de KPIs do DRE (ver abaixo) |
 
 > Paths (`path_lctos`, `path_mapa`) **não estão no JSON** — o ETL os deriva por convenção a partir de `codigo` e `nome`. Ver SRS §4.4.
@@ -190,7 +189,7 @@ Categorias especiais confirmadas no MapaAloc:
 
 | Pendência | Impacto | Estado |
 |---|---|---|
-| `f_SaldoBancos` | CAIXA Início do DFC = 0 enquanto faltar o saldo de abertura | Gap ativo — aba criada vazia no workbook. Fallback §4.2: se faltar o mês de abertura (`1º mês do DFC − 1`), `saldo_inicial = 0` + aviso em `f_Erros` ("Saldo de abertura ausente para AAAA-MM"). DFC permanece funcional; **não** usar `#N/D`. |
+| `f_bancos/` ausente — saldos reais | CAIXA Início do DFC = 0 enquanto não criado | **Débito técnico:** AB não possui `assets/dados/AB - AB Aeterno/f_bancos/AB_f_Bancos.xlsx`. Criar o arquivo com histórico de saldos mensais usando o contrato padrão (colunas: `data \| nome_conta \| BU \| saldo` — ver SRS §4.2); o ETL passa a lê-lo automaticamente na próxima carga. Até lá: `f_SaldoBancos` vazio + aviso em `f_Erros`. DFC permanece funcional; **não** usar `#N/D`. James preenche saldos em paralelo. |
 | Diferença numérica | Total da fonte ≠ controle manual do cliente | Fora de escopo do relatório. Entregar com ressalva explícita. Dado de origem — James fecha em paralelo. |
 
 ---

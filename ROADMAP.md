@@ -19,7 +19,8 @@
 
 ## Próxima iteração
 
-- **Implantação GCG Clínica:** `cad_cliente_GCG.json` + `extractor_gcg.py` (Conta Azul XLS). Em desenvolvimento.
+- **Implantação GCG Clínica:** `cad_cliente_GCG.json` + `extractor_gcg.py` (Conta Azul XLS) + leitura de `f_bancos/f_Bancos.xlsx` no loader. Em desenvolvimento.
+- **AB — `f_bancos/` com saldos reais:** criar `assets/dados/AB - AB Aeterno/f_bancos/AB_f_Bancos.xlsx` com histórico de saldos mensais por conta/BU. O ETL já suporta a pasta por convenção (SRS §4.2); nenhuma mudança de código necessária. Elimina o CAIXA INÍCIO = 0 no DFC AB.
 - **Implantação demais clientes (ES, LA, OS):** aguardar validação GCG; cadastros base em `assets/cad_clientes/` já existem.
 - **Aba `check` — fórmulas de validação:** soma KPI vs cascata N3; `_sem_mapa = 0`; contador `f_Erros` (vermelho se > 0); bate colisão Realizado×Projeção; bate DFC caixa; BU duplo-check. Design em aberto — ver `SDD/SRS_RegrasRelatPadrao.md` §7.1.
   - **Pendência C:** IF de corte Realizado×Projeção sem rastreabilidade — builder escreve o IF mas não há verificação de que está em todas as células; a aba `check` é o remédio natural.

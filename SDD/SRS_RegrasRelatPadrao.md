@@ -278,14 +278,37 @@ e o nº de linhas `_sem_mapa` quando > 0. Sem alerta de tela — simplifica o ET
 
 ### 4.2 `f_SaldoBancos`
 
-Granularidade: `data | BU | nome_conta | valor`. Saldo é **estoque**, não fluxo → tabela
+Granularidade: `data | BU | nome_conta | saldo`. Saldo é **estoque**, não fluxo → tabela
 própria, não entra na `f_Base`. Alimenta CAIXA Início/Fim do DFC e o bate de saldo.
 Mínimo: total do mês.
 
-**Origem:** a aba `f_SaldoBancos` é criada **uma única vez** no workbook (como tabela
-ListObject vazia) durante a montagem inicial do Excel. É preenchida **manualmente pelo
-operador** ao longo do tempo conforme os dados de saldo são disponibilizados. **O ETL de
-lançamentos não gera, não lê e não sobrescreve esta aba.**
+**Origem — convenção por pasta (sem flag no `cad_cliente`):**
+
+O ETL sempre procura a pasta `f_bancos/` dentro da pasta de dados do cliente (§4.4):
+
+| Situação | Comportamento |
+|---|---|
+| `f_bancos/` existe e contém arquivo legível com dados | ETL lê o arquivo e sobrescreve `f_SaldoBancos` no workbook a cada carga |
+| `f_bancos/` ausente, arquivo ausente ou arquivo vazio | `f_SaldoBancos` fica como tabela vazia; aviso em `f_Erros` (ver fallback abaixo) |
+| Arquivo existe mas o mês de abertura específico não consta | Aviso em `f_Erros` (ver fallback abaixo) |
+
+O operador atualiza o arquivo-fonte mensalmente; **nunca edita o workbook diretamente**.
+Nenhum campo de configuração é necessário no `cad_cliente` — a presença da pasta é a
+configuração. Clientes sem `f_bancos/` (ex.: AB Aeterno, enquanto não migrado) seguem
+automaticamente para o fallback.
+
+**Contrato do arquivo `{SIGLA}_f_Bancos.xlsx` (universal — todos os clientes):**
+
+| Coluna | Tipo | Descrição |
+|---|---|---|
+| `data` | data | Qualquer data dentro do mês (ex.: último dia útil, dia 30) — o loader normaliza para 1º do mês |
+| `BU` | texto | Nome exato da BU conforme `bu_validos` do `cad_cliente` |
+| `nome_conta` | texto | Identificador da conta bancária (ex.: `"PJ Itaú"`, `"Caixa"`) |
+| `saldo` | número | Saldo de encerramento do mês |
+
+**Regras de processamento do loader (SRS §4.2):**
+- **Normalização de data:** qualquer data dentro do mês é aceita e convertida para `AAAA-MM-01` (chave de período). Compatível com os filtros mensais do restante do ETL.
+- **Duplicatas:** se houver dois registros para o mesmo `(BU, nome_conta, mês)`, o loader emite aviso em `f_Erros` e mantém o de **maior data original**. Não bloqueante — o relatório é gerado normalmente.
 
 **Fallback — saldo de abertura ausente:** o saldo inicial do DFC é o saldo de fechamento do
 **mês imediatamente anterior ao 1º mês exibido** (mês-âncora de abertura = `1º mês do DFC − 1`).
@@ -294,13 +317,13 @@ Se `f_SaldoBancos` **não contiver registro para esse mês de abertura**, aplica
 - `saldo_inicial = 0` (mantido — **não usar `#N/D`**, que propaga erro e quebra as somas de
   fluxo a jusante; um DFC funcional com aviso é melhor que um DFC quebrado).
 - Registrar em `f_Erros` uma ocorrência:
-  `"Saldo de abertura ausente em f_SaldoBancos para AAAA-MM — operador deve preencher/atualizar"`.
+  - Pasta/arquivo ausente ou vazio: `"f_bancos não encontrado ou vazio para {SIGLA} — CAIXA INÍCIO = 0. Criar f_bancos/ com saldos históricos."`
+  - Arquivo presente mas mês de abertura faltando: `"Saldo de abertura ausente em f_SaldoBancos para AAAA-MM — atualizar f_Bancos.xlsx."`
 - A check sinaliza via contador de `f_Erros > 0` em vermelho (§4.3 item 4).
 
-O DFC permanece funcional com CAIXA Início = 0 até o operador preencher o mês de abertura.
-**Canal de alerta = exclusivamente `f_Erros` + check.** Sem sinalização adicional na linha do
-DFC e sem alerta de tela — mantém o ETL simples. O ETL de lançamentos **não gera, não lê
-para cálculo e não sobrescreve** `f_SaldoBancos`.
+O DFC permanece funcional com CAIXA Início = 0 até o arquivo ser criado/atualizado.
+**Canal de alerta = exclusivamente `f_Erros` + check.** Sem sinalização adicional na linha
+do DFC e sem alerta de tela — mantém o ETL simples.
 
 ### 4.3 Aba check — esqueleto inicial (evolutivo)
 
@@ -321,11 +344,16 @@ para cálculo e não sobrescreve** `f_SaldoBancos`.
 ```
 assets/dados/{SIGLA} - {Nome}/
 ├── {SIGLA}_MapaAloc.xlsx        ← MapaAloc corrente; sem versão no nome
-└── f_Lctos/                     ← drop zone de lançamentos
-    └── arquivo(s) de lançamentos (qualquer formato suportado pelo extrator do cliente)
+├── f_Lctos/                     ← drop zone de lançamentos
+│   └── arquivo(s) de lançamentos (qualquer formato suportado pelo extrator do cliente)
+└── f_bancos/                    ← saldos bancários mensais (opcional; ver §4.2)
+    └── {SIGLA}_f_Bancos.xlsx   ← arquivo de saldos; atualizado mensalmente pelo operador
 ```
 
-O ETL deriva esses caminhos por convenção a partir de `codigo` e `nome` no `cad_cliente_{SIGLA}.json`. Os campos `path_mapa` e `path_lctos` **não existem no JSON** — a convenção é a especificação.
+O ETL deriva todos esses caminhos por convenção a partir de `codigo` e `nome` no
+`cad_cliente_{SIGLA}.json`. Os campos `path_mapa`, `path_lctos` e `path_bancos` **não
+existem no JSON** — a convenção é a especificação. A pasta `f_bancos/` é opcional: sua
+presença ativa a leitura de saldos; sua ausência aciona o fallback (§4.2).
 
 **Regras da drop zone `f_Lctos/`:**
 - Contém somente os arquivos **correntes** (última versão de cada conjunto de dados).
@@ -415,7 +443,7 @@ Linhas `_sem_mapa = TRUE` ficam na `f_Base` (com `dre_n3`/`dfc_n3` = NULL) **e**
 registradas em `f_Erros`. Erros técnicos (dado inválido, BU fora de domínio, etc.) vão
 **somente** para `f_Erros` — não entram na `f_Base`.
 
-### 6.9 `f_SaldoBancos` = data|BU|nome_conta|valor; fallback = saldo 0; aba manual (§4.2)
+### 6.9 `f_SaldoBancos` = data|BU|nome_conta|saldo; origem por convenção de pasta (`f_bancos/`); fallback = tabela vazia + aviso em `f_Erros` (§4.2)
 
 ### 6.10 Invariante do gerador de DRE/DFC: só referenciar colunas existentes no shape do cliente
 
@@ -991,8 +1019,8 @@ Colunas não-contíguas; builder lista explicitamente.
 **DFC — CAIXA INÍCIO DO MÊS:**
 ```excel
 ' 1ª coluna (C) — lê f_SaldoBancos:
-=SUMIFS(f_SaldoBancos[valor],
-  f_SaldoBancos[data], EOMONTH(C$7,-1),
+=SUMIFS(f_SaldoBancos[saldo],
+  f_SaldoBancos[data], EDATE(C$7,-1),
   f_SaldoBancos[BU],  IF(sel_BU="Todas","*",sel_BU))
 
 ' Colunas seguintes (E, G …) — cadeia do mês anterior:
