@@ -190,7 +190,7 @@ openpyxl: `ws.sheet_view.showGridLines = False`
 - **Altura:** 25 px; largura proporcional (aspect ratio original mantido)
 - **Âncora:** `AbsoluteAnchor` — não se move nem redimensiona ao alterar colunas ou linhas
 - **Linha 2:** altura ajustada para `18.75 pt` (= 25 px)
-- **Origem do arquivo:** `LOGO_PATH` = `assets/logo/` na raiz do projeto — configurado por cliente em `etl_ab.py`
+- **Origem do arquivo:** `LOGO_PATH` = `assets/logo/` na raiz do projeto — resolvido em runtime pelo `etl.py`
 - **Coordenadas EMU:** X = largura col A (18 px), Y = altura row 1 (20 px)
 
 openpyxl:

@@ -99,7 +99,7 @@ Origem: Excel do cliente (Arquivo Empresa)
 Camada pré-staging: leitura do Excel → f_Lctos_2023_2026_proj.xlsx
     │   (arquivo intermediário padronizado — 10 colunas incluindo fornecedor_cliente)
     ▼
-Staging (Python — etl_ab.py):
+Staging (Python — etl.py AB → staging.py):
     ├── f_Lctos × MapaAloc (LEFT JOIN por categoria) → enriquece com DRE/DFC/KPIs/sinal
     ├── Define fonte: Realizado → "Dados Oficiais" | Orçado → "Orçamento"
     ├── Gera id_lcto sequencial (intra-carga)
@@ -132,14 +132,25 @@ O staging distingue `fonte` pelo valor de `tipo_registro`.
 ## 5. Cascata DRE e exceção `Impostos sobre Resultado`
 
 O arquivo `assets/cad_clientes/cad_cliente_AB.json` é o **contrato máquina** do cliente —
-carregado em runtime pelo `pipeline/etl_ab.py`. Contém:
+carregado em runtime pelo `pipeline/etl.py`. Contém:
 
 | Chave | Conteúdo |
 |---|---|
+| `codigo` / `nome` / `segmento_cliente` / `status` | Identificação do cliente |
+| `origem_dados_realizado` | Tipo de integração da fonte |
+| `path_lctos` | Caminho relativo à raiz do projeto para o arquivo de lançamentos |
+| `path_mapa` | Caminho relativo à raiz do projeto para o MapaAloc |
+| `staging_mapa_fonte` | Descrição legível do mapeamento arquivo → `fonte` |
+| `conversao_defensiva_valor` | `"Sim"` / `"Não"` — converte texto formatado para número |
+| `bu_origem` | Como a BU é derivada (`f_Lctos_direto`, `de_para_conta_bancaria`, etc.) |
 | `bu_validos` | BUs aceitas pelo ETL na validação de erros técnicos |
 | `tipo_reg_validos` | Valores aceitos de `tipo_registro` |
 | `mapa_fonte` | Mapeamento `tipo_registro → fonte` (campo `fonte` na f_Base) |
+| `tem_*` | Flags booleanas das colunas condicionais (`tem_conta_bancaria`, etc.) |
 | `mes_corte_realizado` | Mês de corte Realizado×Projeção (formato `AAAA-MM`) |
+| `reforecast_vigente_ref` | Etiqueta de auditoria do reforecast ativo (`null` se inexistente) |
+| `mapaaloc_arquivo` / `mapaaloc_versao` | Identificação do MapaAloc em uso |
+| `moeda` | Moeda do cliente (`"BRL"`) |
 | `saldo_seed` | Saldo inicial de `f_SaldoBancos` — zeros provisórios (preencher com saldos reais) |
 | `dre_cascade` | Cascata de KPIs do DRE (ver abaixo) |
 

@@ -1,6 +1,6 @@
 """
 builder.py — Constrói estrutura do workbook AZ Resultados a partir do MapaAloc.
-Chamado a cada carga pelo etl_ab.py (builder roda sempre, sem diff).
+Chamado a cada carga pelo etl.py (builder roda sempre, sem diff).
 """
 
 import re

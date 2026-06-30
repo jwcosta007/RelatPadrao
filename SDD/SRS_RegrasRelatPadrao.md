@@ -903,8 +903,10 @@ O script de carga é organizado em módulos com responsabilidades distintas:
 
 | Módulo | Responsabilidade |
 |---|---|
-| `etl_ab.py` | Orquestrador — chama os demais na sequência correta |
-| `loader.py` | Leitura de fontes: MapaAloc, `f_Lctos`, `f_SaldoBancos` existente |
+| `etl.py` | Orquestrador — entry point `python etl.py <CODIGO>`; chama os demais na sequência correta |
+| `extractors/extractor_<codigo>.py` | Leitura e normalização específica por cliente/formato |
+| `staging.py` | Staging universal: validação, JOIN MapaAloc, enriquecimento, montagem da `f_Base` |
+| `loader.py` | Leitura de fontes universais: MapaAloc e `f_SaldoBancos` existente |
 | `builder.py` | Gera estrutura DRE/DFC/Lista a partir da hierarquia do MapaAloc |
 | `writer.py` | Escreve o workbook com dados e estrutura gerada |
 

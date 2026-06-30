@@ -23,10 +23,13 @@ RelatPadrao/
 │   ├── SRS_RegrasRelatPadrao.md    # Regras universais — ler antes de implementar
 │   └── DesignDoc_Relatorio.md   # Paleta de cores e hierarquia visual
 ├── pipeline/                   # Módulos Python do ETL
-│   ├── etl_ab.py               # Orquestrador — ponto de entrada AB Aeterno
-│   ├── loader.py               # Leitura de fontes (MapaAloc, f_Lctos, f_SaldoBancos)
+│   ├── etl.py                  # Entry point: python etl.py <CODIGO>
+│   ├── staging.py              # Staging universal (validação, JOIN MapaAloc, enriquecimento)
+│   ├── loader.py               # Leitura de MapaAloc e f_SaldoBancos
 │   ├── builder.py              # Geração do workbook (DRE, DFC, KPIs, seletores)
-│   └── writer.py               # Escrita e salvamento do arquivo Excel
+│   ├── writer.py               # Escrita e salvamento do arquivo Excel
+│   └── extractors/             # Extratores por cliente/formato de origem
+│       └── extractor_ab.py     # Lê e normaliza dados AB Aeterno (Excel)
 ├── assets/                     # Recursos e dados de entrada
 │   ├── logo/                   # Logotipo AZ Resultados
 │   ├── cad_clientes/           # Configuração por cliente (*.md)
@@ -43,7 +46,7 @@ RelatPadrao/
 ## Como executar
 
 ```bash
-python pipeline/etl_ab.py
+python pipeline/etl.py AB
 ```
 
 O arquivo de saída é gerado em `relatorios/` com o nome `{SIGLA}_RelatFinanceiro_{YYYYMMDDHHMM}.xlsx`.
@@ -55,7 +58,7 @@ Exemplo: `AB_RelatFinanceiro_202606250054.xlsx`.
 python -m pytest tests/ -v
 ```
 
-- `tests/test_etl.py` — 21 testes unitários (não requerem dados reais)
+- `tests/test_staging.py` — 22 testes unitários (não requerem dados reais)
 - `tests/test_workbook.py` — 13 testes de integração (requerem xlsx em `relatorios/`)
 
 ---
@@ -66,7 +69,7 @@ Cada cliente tem um cadastro em `assets/cad_clientes/cad_cliente_<CODIGO>v<N>.md
 - BUs válidas, `mes_corte_realizado`, colunas condicionais ativas
 - Referência ao arquivo MapaAloc e fonte de lançamentos
 
-O ETL lê esses parâmetros como config hardcoded no `etl_<codigo>.py` correspondente.  
+O ETL lê esses parâmetros do `cad_cliente_<CODIGO>.json` em runtime.
 Detalhes do contrato de dados em `SDD/SRS_RegrasRelatPadrao.md`.
 
 ---
@@ -80,17 +83,22 @@ Copie `assets/cad_clientes/cad_cliente_AB.md` como ponto de partida e salve como
 (BUs, `mes_corte_realizado`, condicionais, MapaAloc, etc.).
 
 Crie também `assets/cad_clientes/cad_cliente_<CODIGO>.json` — contrato máquina lido
-pelo ETL em runtime. Use `cad_cliente_AB.json` como modelo. Estrutura obrigatória:
+pelo ETL em runtime. Use `cad_cliente_AB.json` como modelo. Chaves obrigatórias:
 
 ```json
 {
+  "codigo": "XX", "nome": "...", "segmento_cliente": "...", "status": "Ativo",
+  "origem_dados_realizado": "...",
+  "path_lctos": "assets/dados/<pasta>/<arquivo>.xlsx",
+  "path_mapa":  "assets/dados/<pasta>/<MapaAloc>.xlsx",
+  "bu_origem": "f_Lctos_direto",
   "bu_validos": ["BU 1", "BU 2"],
   "tipo_reg_validos": ["Realizado", "Orçado", "Reforecast"],
   "mapa_fonte": { "Realizado": "Dados Oficiais", "Orçado": "Orçamento", "Reforecast": "Reforecast" },
+  "tem_conta_bancaria": false, "tem_fornecedor_cliente": false,
   "mes_corte_realizado": "AAAA-MM",
-  "saldo_seed": [
-    { "data": "AAAA-MM-DD", "BU": "<BU>", "nome_conta": "<conta>", "valor": 0 }
-  ],
+  "mapaaloc_arquivo": "...", "mapaaloc_versao": "v1", "moeda": "BRL",
+  "saldo_seed": [{ "data": "AAAA-MM-DD", "BU": "<BU>", "nome_conta": "<conta>", "valor": 0 }],
   "dre_cascade": [
     { "n1_names": ["N1_A", "N1_B"], "kpi_label": "NOME KPI", "is_roxo": false },
     { "n1_names": ["N1_C"], "kpi_label": "RESULTADO INVESTIDORES", "is_roxo": true }
@@ -100,27 +108,27 @@ pelo ETL em runtime. Use `cad_cliente_AB.json` como modelo. Estrutura obrigatór
 
 **2. Preparar os dados de entrada**
 
-Crie a pasta `assets/<NomeCliente>/` e coloque:
+Crie a pasta `assets/dados/<NomeCliente>/` e coloque:
 - Arquivo de lançamentos (`f_Lctos_*.xlsx`)
 - Arquivo MapaAloc (`*_MapaAloc_*.xlsx`) — estrutura de 25 colunas conforme `SDD/SRS_RegrasRelatPadrao.md` §2
 
-**3. Criar o orquestrador ETL**
+**3. Criar o extrator do cliente**
 
-Copie `pipeline/etl_ab.py` como `pipeline/etl_<codigo>.py` e ajuste:
+Crie `pipeline/extractors/extractor_<codigo>.py` com a função:
 
-| Seção | O que alterar |
-|---|---|
-| `PATHS` | `LCTOS_PATH`, `MAPA_PATH` apontando para a pasta do cliente |
-| `BU_VALIDOS` | BUs do cliente conforme cadastro |
-| `CAD_CONFIG` | Todos os campos do cad_cliente (codigo, nome, BUs, corte, etc.) |
-| `DRE_CASCADE` | Lida de `cad_cliente_<CODIGO>.json` (chave `dre_cascade`) — não hardcodar |
-| `F_BASE_COLS` | Ajustar se o cliente tiver condicionais diferentes das do AB |
-| `F_SALDO_SEED` | Seed de abertura do f_SaldoBancos (BU, conta, data, valor 0) |
+```python
+def load(path, cfg) -> pd.DataFrame:
+    # lê o arquivo bruto do cliente e retorna DataFrame com colunas:
+    # data_caixa, historico, categoria, valor, bu, tipo_registro
+    # + condicionais ativas (conta_bancaria, fornecedor_cliente, etc.)
+```
+
+Use `extractor_ab.py` como referência. Toda lógica específica do formato da fonte fica aqui.
 
 **4. Executar e verificar**
 
 ```bash
-python pipeline/etl_<codigo>.py
+python pipeline/etl.py <CODIGO>
 ```
 
 Verificar no relatório gerado (`relatorios/<CODIGO>_RelatFinanceiro_*.xlsx`):
