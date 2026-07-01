@@ -29,8 +29,8 @@
 | Colunas condicionais | `tem_data_competencia` | `Sim` |
 | | `tem_data_vencimento` | `Sim` |
 | | `tem_valor_original` | `Sim` |
-| | `tem_documento` | `Não` *(Nota fiscal muito esparsa no Conta Azul)* |
-| | `tem_conta_bancaria` | `Sim` *(insumo de BU — obrigatório)* |
+| | `tem_documento` | `Não` *(Nota fiscal 0% preenchida na amostra — 2853 linhas contas_a_pagar + 2041 contas_a_receber)* |
+| | `tem_conta_bancaria` | `Sim` *(insumo de BU — obrigatório; linha com `valor` E `conta_bancaria` ambos vazios → erro técnico, ver §4)* |
 | | `tem_fornecedor_cliente` | `Sim` *(Nome do fornecedor / Nome do cliente)* |
 | Projeção | `mes_corte_realizado` | `2026-05` *(formato `AAAA-MM`)* |
 | | `reforecast_vigente_ref` | *(null — sem reforecast vigente)* |
@@ -108,14 +108,15 @@ Origem: Conta Azul — dois exports por período
     ▼
 Camada pré-staging: extractor_gcg.py
     ├── lê ambos os arquivos (openpyxl — extensão .xls, conteúdo XLSX)
-    ├── Situação=Quitado    → tipo_registro=Realizado; data_caixa = Data do último pagamento
-    ├── Situação=Em aberto  → tipo_registro=Projetado; data_caixa = Data de vencimento (a vencer — dado real do ERP, não estimativa; entra no seletor de projeção, SRS §10.1/§10.3)
-    ├── Situação=Atrasado   → tipo_registro=Atrasado; data_caixa = Data de vencimento (vencido, não pago; nunca entra em DRE/DFC/KPI — só rastreabilidade na f_Base, SRS §10.1)
+    ├── Situação=Quitado    → tipo_registro=Realizado; data_caixa = Data do último pagamento; valor = Valor total pago da parcela (pagar) / Valor total recebido da parcela (receber) — inclui juros/multa realizados
+    ├── Situação=Em aberto  → tipo_registro=Projetado; data_caixa = Data de vencimento (a vencer — dado real do ERP, não estimativa; entra no seletor de projeção, SRS §10.1/§10.3); valor = Valor total da parcela em aberto — inclui juros/multa previstos
+    ├── Situação=Atrasado   → tipo_registro=Atrasado; data_caixa = Data de vencimento (vencido, não pago; nunca entra em DRE/DFC/KPI — só rastreabilidade na f_Base, SRS §10.1); valor = Valor total da parcela em aberto
     ├── Situação=Perdido/Desconsiderado → excluir (cancelamento intencional)
+    ├── valor E conta_bancaria ambos vazios (lançamento incompleto no Conta Azul) → erro técnico (f_Erros, exclui da f_Base) — validado: 6 casos na amostra, todos Situação=Atrasado
     ├── categoria = Categoria 1
-    ├── historico = Descrição
-    ├── fornecedor_cliente = Nome do fornecedor / Nome do cliente
-    └── BU derivada via de-para conta bancária (tabela §6)
+    ├── historico = Descrição — Observações (concatenado só quando Observações existir; senão historico = Descrição). Observações preenchida em 59,6% (pagar) / 77,9% (receber) da amostra — conteúdo complementar, não redundante
+    ├── fornecedor_cliente = Nome do fornecedor (contas_a_pagar) / Nome do cliente (contas_a_receber)
+    └── BU derivada via de-para conta bancária (tabela §6); contas split (notação `A / B`) → erro técnico, nunca inferir primeira/última
     │
     ▼
 Staging (Python — etl.py GCG → staging.py):
@@ -147,17 +148,19 @@ Usado pelo `extractor_gcg.py` para derivar a BU a partir da conta bancária do l
 | `BTG - Camilla` | CPF |
 | `BB - AG 0525 CC 35440-6` | CNPJ |
 | `BB - Aplicação Fundo BB RF LP SELIC` | CNPJ |
-| `BB - ELO` | CNPJ |
+| `BB - ELO` | CPF |
 | `Caixa Econômica` | CNPJ |
 | `Infinite Pay` | CNPJ |
 | `Inter - Ag 0001 C/C 10845153-4` | CNPJ |
 | `Saúde Service` | CNPJ |
 | `Stone` | CNPJ |
 | `Recebimentos \| Camilla Garritano` | CNPJ |
-| `Recepção (Caixinha)` | CNPJ |
-| `Ajustes de efeito zero (justificar)` | CNPJ |
+| `Recepção (Caixinha)` | CPF |
+| `Ajustes de efeito zero (justificar)` | CNPJ *(conta virtual — ver nota abaixo)* |
 
-> **Contas split (notação `A / B`):** `BB - AG 0525 CC 35440-6 / Inter - Ag 0001 C/C 10845153-4` e outras — lógica de extração a definir na implementação do `extractor_gcg.py`.
+> **Contas split (notação `A / B`):** ex. `BB - AG 0525 CC 35440-6 / Inter - Ag 0001 C/C 10845153-4`, `Infinite Pay / Itaú - AG 3820 CC 43029-0` — **decisão travada:** gerar erro técnico, nunca inferir primeira/última conta do split.
+
+> **`Ajustes de efeito zero (justificar)`:** conta virtual do Conta Azul usada para registrar movimentos que não passam pelas contas bancárias reais (ex.: PIX recebido direto na conta pessoal de um sócio, reconhecido como receita da clínica + distribuição de lucro). Deve **fechar em zero mensalmente**; validado com caso real da base (recebimento em 11/nov, distribuição formalizada só em 18/dez — gap de ~1 mês). O bate mensal é intencional: serve para **detectar esse tipo de defasagem** e disparar ajuste manual. Ver pendência P11 (§9) — teste a implementar na aba `check`.
 
 ---
 
@@ -191,8 +194,9 @@ Estado atual: arquivo com dados de saldo set/2025–abr/2026. BUs `CPF` e `CNPJ`
 |---|---|---|
 | P7 | Definir categorias para `kpi_receita_liquida` e `kpi_lucro_liquido` no MapaAloc | James |
 | P8 | Ativar `kpi_cmv` — adicionar a `_KPI_COLS_ALL` (staging.py) e `MAPA_COLS` (loader.py) | AZ |
-| P9 | Contas split com `/` — definir lógica de de-para na implementação do extractor | AZ + James |
+| P9 | Contas split com `/` — regra definida (erro técnico, §6); implementar no extractor | AZ |
 | P10 | Implementar `extractor_gcg.py` (Conta Azul XLS) | AZ |
+| P11 | Aba `check` (GCG): bate mensal da conta virtual `Ajustes de efeito zero` (BU CNPJ) deve fechar em zero — `SUMIFS(f_Base[valor], f_Base[conta_bancaria], "Ajustes de efeito zero (justificar)", f_Base[mes_caixa], <mês>)`. Aguarda design geral da aba `check` (SRS §7.1, ROADMAP) | AZ |
 
 ---
 
@@ -204,5 +208,5 @@ Estado atual: arquivo com dados de saldo set/2025–abr/2026. BUs `CPF` e `CNPJ`
 
 ---
 
-*Versão 03 — 30/jun/2026*
+*Versão 04 — 01/jul/2026*
 *Regras universais em `SDD/SRS_RegrasRelatPadrao.md`.*

@@ -19,13 +19,14 @@
 
 ## Próxima iteração
 
-- **Implantação GCG Clínica:** ✅ `cad_cliente_GCG.json` + `GCG_MapaAloc.xlsx` concluídos. Próximo: `extractor_gcg.py` (Conta Azul XLS — 9 questões abertas em `memory/gcg_extractor_questions.md`).
+- **Implantação GCG Clínica:** ✅ `cad_cliente_GCG.json`/`.md` (v04) + `GCG_MapaAloc.xlsx` concluídos, e as 9 questões de `memory/gcg_extractor_questions.md` respondidas (inclui expansão do domínio `tipo_registro` para 5 valores — ver SRS §10.1). Próximo: implementar `extractor_gcg.py` (Conta Azul XLS).
 - **AB — `f_bancos/` com saldos reais:** criar `assets/dados/AB - AB Aeterno/f_bancos/AB_f_Bancos.xlsx` com histórico de saldos mensais por conta/BU. O ETL já suporta a pasta por convenção (SRS §4.2); nenhuma mudança de código necessária. Elimina o CAIXA INÍCIO = 0 no DFC AB.
 - **Implantação demais clientes (ES, LA, OS):** aguardar validação GCG; cadastros base em `assets/cad_clientes/` já existem.
 - **Aba `check` — fórmulas de validação:** soma KPI vs cascata N3; `_sem_mapa = 0`; contador `f_Erros` (vermelho se > 0); bate colisão Realizado×Projeção; bate DFC caixa; BU duplo-check. Design em aberto — ver `SDD/SRS_RegrasRelatPadrao.md` §7.1.
   - **Pendência C:** IF de corte Realizado×Projeção sem rastreabilidade — builder escreve o IF mas não há verificação de que está em todas as células; a aba `check` é o remédio natural.
   - **Pendência D:** KPIs definidos por flag no MapaAloc sem validação de rótulo — flag `kpi_ebitda = Sim` pode estar na linha errada sem alerta; validar na `check` ou no ETL.
   - **Pendência E:** Fallback saldo zero sem trilha de correção — quando saldo real é preenchido, relatório anterior não é remarcado como desatualizado. Baixa prioridade.
+  - **Pendência GCG (P11):** bate mensal da conta virtual `Ajustes de efeito zero` (BU CNPJ, ver `cad_cliente_GCG.md` §6/§9) — deve fechar em zero por mês; detecta defasagem entre reconhecimento de receita e formalização de distribuição de lucro entre sócios.
 - **`d_Calendario` / `d_Feriados`:** criar somente quando `tem_data_competencia = Sim` ou `tem_data_vencimento = Sim` no `cad_cliente`. AB não usa; GCG a avaliar.
 
 ---
