@@ -26,7 +26,9 @@
 
 > **Status: FECHADO.** Fórmulas podem ser escritas contra este contrato.
 > A frente de projeções não altera o contrato de colunas — `tipo_registro` já é coluna do
-> núcleo; ganhar um 3º valor aceito ("Reforecast") é mudança de **domínio**, não de **shape**.
+> núcleo; ganhar novos valores aceitos (`Reforecast`, `Atrasado`, `Projetado`) é mudança de
+> **domínio**, não de **shape**. Domínio corrente (5 valores): `Realizado` / `Atrasado` /
+> `Projetado` / `Orçado` / `Reforecast` — ver §10.1.
 
 ### 1.1 Princípio estrutural — contrato PARAMETRIZADO
 
@@ -90,9 +92,12 @@ O número resultante é registrado em `cad_cliente/*.md` para cada cliente.
 pesquisa de diferenças — **não** é filtro de relatório e **não** se mistura com `tipo_registro`.
 
 **Fronteira travada:**
-- **`tipo_registro`** = filtro de DRE, DFC, KPI e O×R. Valores: `Realizado` / `Orçado` / `Reforecast`
+- **`tipo_registro`** = filtro de DRE, DFC, KPI e O×R. Domínio (5 valores, §10.1): `Realizado` /
+  `Atrasado` / `Projetado` / `Orçado` / `Reforecast`. **`Atrasado` nunca é consumido por nenhum
+  SUMIFS de relatório-fim** — existe na `f_Base` só para rastreabilidade (contas vencidas e não
+  pagas); ver §10.1.
 - **`fonte`** = rastreabilidade por lançamento. Valores típicos: `"Dados Oficiais"` /
-  `"Orçamento"` / `"Gerencial"` / `"Manual"` / outros conforme o cliente
+  `"Orçamento"` / `"Projeção"` / `"Atraso"` / `"Gerencial"` / `"Manual"` / outros conforme o cliente
 
 **Origem do `fonte`:** definido pelo **staging**, com base no mapeamento arquivo/pasta → fonte
 declarado em `cad_cliente.staging_mapa_fonte`. **Não vem do MapaAloc** (`fonte_erp` removido).
@@ -103,6 +108,14 @@ Exemplo de mapeamento (ver `cad_cliente_AB.md`):
 |---|---|---|
 | f_Lctos (Arquivo Empresa) | `Realizado` | `"Dados Oficiais"` |
 | f_Lctos (Arquivo Empresa) | `Orçado` | `"Orçamento"` |
+
+Exemplo com origem ERP de contas a pagar/receber (ver `cad_cliente_GCG.md`):
+
+| `Situação` na origem | `tipo_registro` | `fonte` resultante |
+|---|---|---|
+| Quitado | `Realizado` | `"Dados Oficiais"` |
+| Em aberto (a vencer) | `Projetado` | `"Projeção"` |
+| Atrasado (vencido, não pago) | `Atrasado` | `"Atraso"` |
 
 ### 1.8 Campo `_sem_mapa` — critério definitivo
 
@@ -535,10 +548,29 @@ Ver `CHANGELOG.md`.
 > "Realizado", há risco de dupla contagem. Solução: corte determinístico por período via
 > `mes_corte_realizado` na Camada 0 — determinístico e auditável (não usar `HOJE()`).
 
-### 10.1 `tipo_registro` — 3 valores aceitos
+### 10.1 `tipo_registro` — 5 valores aceitos
 
-`Realizado` / `Orçado` / `Reforecast`. Filtro de relatório — não se mistura com `fonte` (§1.7).
-Nenhuma coluna nova na `f_Base` — é ampliação de domínio do campo existente.
+`Realizado` / `Atrasado` / `Projetado` / `Orçado` / `Reforecast`. Filtro de relatório — não se
+mistura com `fonte` (§1.7). Nenhuma coluna nova na `f_Base` — é ampliação de domínio do campo
+existente.
+
+- **`Realizado`:** lançamento com caixa já movimentado (pago/recebido).
+- **`Atrasado`:** lançamento com vencimento já passado e ainda não pago — dado real do ERP,
+  não estimativa. **Nunca entra em DRE/DFC/KPI/O×R** (nenhum SUMIFS de relatório-fim o filtra;
+  não está em `lista_projecao` nem em `lista_tipo_registro`). Existe na `f_Base` apenas para
+  rastreabilidade/contas vencidas — consumo previsto fora do escopo deste SRS (ex.: aba de
+  pendências, quando implementada).
+- **`Projetado`:** lançamento com vencimento futuro e ainda não pago — dado real do ERP
+  (nota/boleto/contrato já emitido), não uma hipótese. Diferente de `Orçado`/`Reforecast`
+  (que são estimativas). Participa do **seletor de projeção** (§10.3) como terceira opção.
+- **`Orçado`:** orçamento definido no início do ano — imutável.
+- **`Reforecast`:** revisão do orçamento original (ou de um reforecast anterior), considerando
+  o realizado até a data da revisão — cada reforecast é imutável; alterá-lo gera uma nova
+  versão. Trabalha-se sempre com o **último reforecast existente** (§10.4).
+
+> `Atrasado` e `Projetado` derivam de dados reais do ERP (ex.: contas a pagar/receber), não de
+> arquivos de planejamento — por isso não são "projeções" no sentido de `Orçado`/`Reforecast`,
+> mesmo `Projetado` participando do mesmo seletor de topo por conveniência operacional.
 
 ### 10.2 Corte determinístico Realizado × Projeção *(via Camada 0)*
 
@@ -546,7 +578,7 @@ Nenhuma coluna nova na `f_Base` — é ampliação de domínio do campo existent
 - **Regra universal aos relatórios-fim** (DRE, DFC, KPI, aba O×R):
   - `mes_caixa ≤ mes_corte_realizado` → consome **`tipo_registro = "Realizado"`**
   - `mes_caixa > mes_corte_realizado` → consome a **projeção escolhida no seletor de topo**
-    (`Orçado` ou `Reforecast`)
+    (`Orçado`, `Reforecast` ou `Projetado`)
 - **Não há desempate linha a linha** — é corte por faixa de período. A exclusão mútua é
   garantida por **IF no critério do SUMIFS** (ver §11.3 para fórmula exata).
 
@@ -581,10 +613,10 @@ A comparação do corte é sempre **`DATE × DATE`**. O rótulo texto **nunca** 
 
 ### 10.3 Seletor de projeção no topo dos relatórios-fim
 
-DRE, DFC e KPIs têm seletor com valores **`Orçado` / `Reforecast`**. **Seleção única** —
-não soma as duas projeções. O seletor não inclui `Realizado`: Realizado é consumido
-automaticamente para meses fechados via corte de §10.2. Fonte clássica de dupla contagem
-se mal-amarrado.
+DRE, DFC e KPIs têm seletor com valores **`Orçado` / `Reforecast` / `Projetado`**. **Seleção
+única** — não soma as opções entre si. O seletor não inclui `Realizado` (consumido
+automaticamente para meses fechados via corte de §10.2) nem `Atrasado` (nunca participa de
+relatório-fim, §10.1). Fonte clássica de dupla contagem se mal-amarrado.
 
 ### 10.4 Reforecast — controle manual, máx. 1 revisão ativa
 
@@ -739,7 +771,7 @@ Layout padronizado do **DRE Gerencial** *(DFC tem estrutura diferente — ver §
 |---|---|---|---|---|
 | `C4:G4` (mesclado) | B4 = `"Unidade"` | BU | `lista_bu` | `"Todas"` |
 | `C5` | B5 = `"Mês/Ano"` | Mês-âncora (DATE — 1º dia do mês) | `lista_ancora` | 1º dia de `mes_corte_realizado` |
-| `F5:G5` (mesclado) | E5 = `"Projeção"` | Projeção (`Orçado` / `Reforecast`) | `lista_projecao` | `"Orçado"` |
+| `F5:G5` (mesclado) | E5 = `"Projeção"` | Projeção (`Orçado` / `Reforecast` / `Projetado`) | `lista_projecao` | `"Orçado"` |
 | `AG7` | — | N meses do bloco rolling | `lista_rolling_n` | `6` (fmt `"00"` → exibe `06`) |
 | `AJ5`, `AK5` | — | Tipo de dado Ano A / Ano B | `lista_tipo_registro` | `"Realizado"` |
 | `AJ6` | — | Ano A | `lista_anos` | `ano(mes_corte_realizado) − 1` |
@@ -778,8 +810,8 @@ O ETL escreve essa aba integralmente a cada carga — nenhum campo é manual.
 |---|---|---|---|---|
 | A | `lista_periodo` | `janeiro`…`dezembro` + `1º Trim`…`4º Trim` + `1º Sem`/`2º Sem` | Universal fixo | 18 valores; igual para todos os clientes. |
 | B | `lista_rolling_n` | `2`–`12` | Universal fixo | 11 valores (mínimo 2); igual para todos os clientes. |
-| C | `lista_projecao` | `Orçado` / `Reforecast` | Universal fixo | 2 valores; igual para todos os clientes. |
-| D | `lista_tipo_registro` | `Realizado` / `Orçado` / `Reforecast` | Universal fixo | 3 valores; alimenta `sel_TipoA`/`sel_TipoB` (AJ5/AK5); igual para todos os clientes. |
+| C | `lista_projecao` | `Orçado` / `Reforecast` / `Projetado` | Universal fixo | 3 valores; igual para todos os clientes. |
+| D | `lista_tipo_registro` | `Realizado` / `Orçado` / `Reforecast` | Universal fixo | 3 valores; alimenta `sel_TipoA`/`sel_TipoB` (AJ5/AK5); igual para todos os clientes. **Não inclui `Atrasado`/`Projetado`** — comparação Ano A/B fica restrita aos tipos de relatório-fim já existentes; revisitar se/quando houver demanda. |
 | E | `lista_ancora` | Meses disponíveis (DATE, 1º dia) | Universal dinâmico | Início: `primeira_data_f_Base + 12 meses`. Fim: `dez` do último ano com `Orçado`; fallback `dez` do último ano com `Realizado`. Sequência contínua, sem gaps. |
 | F | `lista_anos` | Anos disponíveis | Universal dinâmico | Início: primeiro ano da `f_Base`. Fim: mesma lógica de `lista_ancora`. |
 | G | `lista_bu` | BUs do cliente + `"Todas"` | Cliente | Lido de `cad_cliente.bu_valores_validos`; `"Todas"` sempre ao final. |

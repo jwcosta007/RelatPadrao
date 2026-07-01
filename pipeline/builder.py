@@ -834,7 +834,7 @@ def build_lista(wb, f_base_df, bu_validos):
 
     _write_col(1, _MESES + _TRIMS + _SEMS, "lista_periodo")
     _write_col(2, list(range(2, 13)),        "lista_rolling_n")
-    _write_col(3, ["Orçado", "Reforecast"],  "lista_projecao")
+    _write_col(3, ["Orçado", "Reforecast", "Projetado"], "lista_projecao")
     _write_col(4, ["Realizado","Orçado","Reforecast"], "lista_tipo_registro")
     _write_col(5, _ancora_dates(f_base_df),  "lista_ancora")
     _write_col(6, _anos(f_base_df),          "lista_anos")

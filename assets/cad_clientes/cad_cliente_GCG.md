@@ -19,7 +19,7 @@
 | | `path_lctos` | `assets/dados/GCG - GCG Clinica/f_Lctos/` *(derivado por convenção — SRS §4.4)* |
 | | `path_mapa` | `assets/dados/GCG - GCG Clinica/GCG_MapaAloc.xlsx` *(derivado por convenção — SRS §4.4)* |
 | | `path_apoio` | *(null)* |
-| Staging | `staging_mapa_fonte` | `Situação=Quitado → tipo_registro=Realizado → "Dados Oficiais"` / `Situação=Em aberto\|Atrasado → tipo_registro=Orçado → "Orçamento"` |
+| Staging | `staging_mapa_fonte` | `Situação=Quitado → tipo_registro=Realizado → "Dados Oficiais"` / `Situação=Em aberto → tipo_registro=Projetado → "Projeção"` / `Situação=Atrasado → tipo_registro=Atrasado → "Atraso"` / `(futuro) Orçado → "Orçamento"` / `(futuro) Reforecast → "Reforecast"` |
 | | `fingerprint_aplicavel` | `Não` |
 | | `conversao_defensiva_valor` | `Sim` |
 | BU | `bu_aplicavel` | `Sim` |
@@ -109,7 +109,8 @@ Origem: Conta Azul — dois exports por período
 Camada pré-staging: extractor_gcg.py
     ├── lê ambos os arquivos (openpyxl — extensão .xls, conteúdo XLSX)
     ├── Situação=Quitado    → tipo_registro=Realizado; data_caixa = Data do último pagamento
-    ├── Situação=Em aberto|Atrasado → tipo_registro=Orçado; data_caixa = Data de vencimento
+    ├── Situação=Em aberto  → tipo_registro=Projetado; data_caixa = Data de vencimento (a vencer — dado real do ERP, não estimativa; entra no seletor de projeção, SRS §10.1/§10.3)
+    ├── Situação=Atrasado   → tipo_registro=Atrasado; data_caixa = Data de vencimento (vencido, não pago; nunca entra em DRE/DFC/KPI — só rastreabilidade na f_Base, SRS §10.1)
     ├── Situação=Perdido/Desconsiderado → excluir (cancelamento intencional)
     ├── categoria = Categoria 1
     ├── historico = Descrição

@@ -4,14 +4,17 @@
   "segmento_cliente":          "Estetica",
   "status":                    "Ativo",
   "origem_dados_realizado":    "Arquivo Empresa",
-  "staging_mapa_fonte":        "Quitado→Realizado→Dados Oficiais | Em aberto|Atrasado→Orçado→Orçamento",
+  "staging_mapa_fonte":        "Quitado→Realizado→Dados Oficiais | Em aberto→Projetado→Projeção | Atrasado→Atrasado→Atraso | (futuro) Orçado→Orçamento | (futuro) Reforecast→Reforecast",
   "conversao_defensiva_valor": "Sim",
   "bu_origem":                 "de_para_conta_bancaria",
   "bu_validos":                ["CPF", "CNPJ"],
-  "tipo_reg_validos":          ["Realizado", "Orçado"],
+  "tipo_reg_validos":          ["Realizado", "Atrasado", "Projetado", "Orçado", "Reforecast"],
   "mapa_fonte": {
-    "Realizado": "Dados Oficiais",
-    "Orçado":    "Orçamento"
+    "Realizado":  "Dados Oficiais",
+    "Atrasado":   "Atraso",
+    "Projetado":  "Projeção",
+    "Orçado":     "Orçamento",
+    "Reforecast": "Reforecast"
   },
   "tem_data_competencia":      true,
   "tem_data_vencimento":       true,
