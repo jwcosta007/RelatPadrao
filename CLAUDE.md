@@ -80,7 +80,7 @@ RelatPadrao/
 - **Origem dos dados:** Conta Azul — dois exports (contas_a_pagar + contas_a_receber), extensão `.xls` mas conteúdo XLSX (`openpyxl`)
 - **BU via:** de-para conta bancária (`cad_depara_bu` em §6 do cad_cliente_GCG.md)
 - **f_Base:** 35 colunas (23 núcleo + 5 condicionais + 7 KPIs)
-- **Extractor:** `extractor_gcg.py` — **pendente** (9 questões abertas em `memory/gcg_extractor_questions.md`)
+- **Extractor:** `extractor_gcg.py` — **pendente de implementação** (as 9 questões de negócio já foram respondidas — decisões em `cad_cliente_GCG.md` §4/§6/§9)
 
 ### Abas do relatório (quando implementado)
 
