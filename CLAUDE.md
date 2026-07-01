@@ -30,7 +30,7 @@ RelatPadrao/
 │   ├── writer.py               # Escrita/salvamento do workbook Excel
 │   └── extractors/             # Extratores por cliente/formato de origem
 │       ├── extractor_ab.py     # Lê e normaliza dados AB Aeterno (Excel)
-│       └── extractor_gcg.py    # (pendente) Lê e normaliza dados GCG — Conta Azul XLS
+│       └── extractor_gcg.py    # (PR #1 aberto, aguardando merge) Lê e normaliza dados GCG — Conta Azul XLS
 ├── tests/                      # Suite de testes automatizados (pytest)
 │   ├── conftest.py             # Setup de path e fixtures compartilhadas
 │   ├── test_staging.py          # Testes unitários do staging (staging.py)
@@ -80,7 +80,7 @@ RelatPadrao/
 - **Origem dos dados:** Conta Azul — dois exports (contas_a_pagar + contas_a_receber), extensão `.xls` mas conteúdo XLSX (`openpyxl`)
 - **BU via:** de-para conta bancária (`cad_depara_bu` em §6 do cad_cliente_GCG.md)
 - **f_Base:** 35 colunas (23 núcleo + 5 condicionais + 7 KPIs)
-- **Extractor:** `extractor_gcg.py` — **pendente de implementação** (as 9 questões de negócio já foram respondidas — decisões em `cad_cliente_GCG.md` §4/§6/§9)
+- **Extractor:** `extractor_gcg.py` — **implementado, PR #1 (`feature/extractor-gcg`) aberto** aguardando revisão/merge de James (inclui aprovação do débito técnico P12 em `cad_cliente_GCG.md` §9)
 
 ### Abas do relatório (quando implementado)
 

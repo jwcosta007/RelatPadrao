@@ -194,9 +194,10 @@ Estado atual: arquivo com dados de saldo set/2025–abr/2026. BUs `CPF` e `CNPJ`
 |---|---|---|
 | P7 | Definir categorias para `kpi_receita_liquida` e `kpi_lucro_liquido` no MapaAloc | James |
 | P8 | Ativar `kpi_cmv` — adicionar a `_KPI_COLS_ALL` (staging.py) e `MAPA_COLS` (loader.py) | AZ |
-| P9 | Contas split com `/` — regra definida (erro técnico, §6); implementar no extractor | AZ |
-| P10 | Implementar `extractor_gcg.py` (Conta Azul XLS) | AZ |
+| P9 | ✅ Contas split com `/` — implementado em `extractor_gcg.py` (erro técnico, nunca infere primeira/última conta) | AZ |
+| P10 | ✅ Implementado `extractor_gcg.py` (Conta Azul XLS) — PR #1 (`feature/extractor-gcg`), aguardando revisão/merge de James | AZ |
 | P11 | Aba `check` (GCG): bate mensal da conta virtual `Ajustes de efeito zero` (BU CNPJ) deve fechar em zero — `SUMIFS(f_Base[valor], f_Base[conta_bancaria], "Ajustes de efeito zero (justificar)", f_Base[mes_caixa], <mês>)`. Aguarda design geral da aba `check` (SRS §7.1, ROADMAP) | AZ |
+| P12 | **Débito técnico (PR #1):** conta bancária preenchida mas **fora** da tabela de-para fechada §6 (nem vazia, nem split) → `extractor_gcg.py` trata como erro técnico ("sem mapeamento de BU conhecido"), excluindo a linha da `f_Base`. Essa sub-regra é uma decisão defensiva do implementador, **não foi combinada explicitamente** com James — precisa de aprovação antes de rodar contra dados reais (alternativa seria deixar `bu=None` passar e cair no bate genérico de `staging.split_errors`, já existente) | James (aprovar) |
 
 ---
 
@@ -208,5 +209,5 @@ Estado atual: arquivo com dados de saldo set/2025–abr/2026. BUs `CPF` e `CNPJ`
 
 ---
 
-*Versão 04 — 01/jul/2026*
+*Versão 05 — 01/jul/2026*
 *Regras universais em `SDD/SRS_RegrasRelatPadrao.md`.*

@@ -19,7 +19,7 @@
 
 ## Próxima iteração
 
-- **Implantação GCG Clínica:** ✅ `cad_cliente_GCG.json`/`.md` (v04) + `GCG_MapaAloc.xlsx` concluídos, e as 9 questões de `memory/gcg_extractor_questions.md` respondidas (inclui expansão do domínio `tipo_registro` para 5 valores — ver SRS §10.1). Próximo: implementar `extractor_gcg.py` (Conta Azul XLS).
+- **Implantação GCG Clínica:** ✅ `cad_cliente_GCG.json`/`.md` (v05) + `GCG_MapaAloc.xlsx` concluídos, 9 questões respondidas (inclui expansão do domínio `tipo_registro` para 5 valores — ver SRS §10.1), e `extractor_gcg.py` implementado — **PR #1 (`feature/extractor-gcg`) aberto, aguardando revisão/merge de James**, incluindo aprovação do débito técnico P12 (`cad_cliente_GCG.md` §9). Depois do merge: rodar `python etl.py GCG` contra dados reais pela primeira vez.
 - **AB — `f_bancos/` com saldos reais:** criar `assets/dados/AB - AB Aeterno/f_bancos/AB_f_Bancos.xlsx` com histórico de saldos mensais por conta/BU. O ETL já suporta a pasta por convenção (SRS §4.2); nenhuma mudança de código necessária. Elimina o CAIXA INÍCIO = 0 no DFC AB.
 - **Implantação demais clientes (ES, LA, OS):** aguardar validação GCG; cadastros base em `assets/cad_clientes/` já existem.
 - **Aba `check` — fórmulas de validação:** soma KPI vs cascata N3; `_sem_mapa = 0`; contador `f_Erros` (vermelho se > 0); bate colisão Realizado×Projeção; bate DFC caixa; BU duplo-check. Design em aberto — ver `SDD/SRS_RegrasRelatPadrao.md` §7.1.
