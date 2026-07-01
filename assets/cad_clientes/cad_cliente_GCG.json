@@ -1,0 +1,57 @@
+{
+  "codigo":                    "GCG",
+  "nome":                      "GCG Clínica",
+  "segmento_cliente":          "Estetica",
+  "status":                    "Ativo",
+  "origem_dados_realizado":    "Arquivo Empresa",
+  "staging_mapa_fonte":        "Quitado→Realizado→Dados Oficiais | Em aberto|Atrasado→Orçado→Orçamento",
+  "conversao_defensiva_valor": "Sim",
+  "bu_origem":                 "de_para_conta_bancaria",
+  "bu_validos":                ["CPF", "CNPJ"],
+  "tipo_reg_validos":          ["Realizado", "Orçado"],
+  "mapa_fonte": {
+    "Realizado": "Dados Oficiais",
+    "Orçado":    "Orçamento"
+  },
+  "tem_data_competencia":      true,
+  "tem_data_vencimento":       true,
+  "tem_valor_original":        true,
+  "tem_documento":             false,
+  "tem_conta_bancaria":        true,
+  "tem_fornecedor_cliente":    true,
+  "mes_corte_realizado":       "2026-05",
+  "reforecast_vigente_ref":    null,
+  "mapaaloc_arquivo":          "GCG_MapaAloc.xlsx",
+  "moeda":                     "BRL",
+  "dre_cascade": [
+    {
+      "n1_names": ["Receita Líquida"],
+      "kpi_label": "RECEITA LÍQUIDA",
+      "is_roxo": false
+    },
+    {
+      "n1_names": ["Custos", "Despesas Comerciais"],
+      "kpi_label": "MARGEM DE CONTRIBUIÇÃO",
+      "is_roxo": false
+    },
+    {
+      "n1_names": ["Despesas"],
+      "kpi_label": "EBITDA",
+      "is_roxo": false
+    },
+    {
+      "n1_names": [
+        "Investimentos",
+        "Resultado Financeiro",
+        "Resultado Não Operacional"
+      ],
+      "kpi_label": "LUCRO LÍQUIDO",
+      "is_roxo": false
+    },
+    {
+      "n1_names": ["Societário"],
+      "kpi_label": "RESULTADO INVESTIDORES",
+      "is_roxo": true
+    }
+  ]
+}

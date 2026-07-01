@@ -29,7 +29,8 @@ RelatPadrao/
 │   ├── charts.py               # Gráficos: criação (openpyxl) + injeção de XML pós-save
 │   ├── writer.py               # Escrita/salvamento do workbook Excel
 │   └── extractors/             # Extratores por cliente/formato de origem
-│       └── extractor_ab.py     # Lê e normaliza dados AB Aeterno (Excel)
+│       ├── extractor_ab.py     # Lê e normaliza dados AB Aeterno (Excel)
+│       └── extractor_gcg.py    # (pendente) Lê e normaliza dados GCG — Conta Azul XLS
 ├── tests/                      # Suite de testes automatizados (pytest)
 │   ├── conftest.py             # Setup de path e fixtures compartilhadas
 │   ├── test_staging.py          # Testes unitários do staging (staging.py)
@@ -37,9 +38,11 @@ RelatPadrao/
 ├── assets/                     # Recursos e dados de entrada do projeto
 │   ├── logo/                   # Logotipo AZ (usado em todas as abas do workbook)
 │   ├── cad_clientes/           # Cadastro de configuração por cliente
-│   │   ├── cad_cliente_AB.md   # Documentação do cliente (humano)
-│   │   ├── cad_cliente_AB.json # Contrato máquina do cliente (lido pelo ETL)
-│   │   └── cad_cliente_*.md    # Demais clientes (ES, GCG, LA, OS)
+│   │   ├── cad_cliente_AB.md   # Documentação AB Aeterno (humano)
+│   │   ├── cad_cliente_AB.json # Contrato máquina AB (lido pelo ETL)
+│   │   ├── cad_cliente_GCG.md  # Documentação GCG Clínica (humano)
+│   │   ├── cad_cliente_GCG.json # Contrato máquina GCG (lido pelo ETL)
+│   │   └── cad_cliente_*.md    # Demais clientes (ES, LA, OS)
 │   └── dados/                  # Dados de entrada por cliente (não versionados)
 │       ├── AB - AB Aeterno/AB_MapaAloc.xlsx
 │       ├── AB - AB Aeterno/f_Lctos/
@@ -67,6 +70,28 @@ RelatPadrao/
 
 `DRE Gerencial` · `DFC` · `KPIs` · `f_Base` · `Lista` · `f_Erros` · `f_SaldoBancos` · `cad_cliente` · `check`
 
+## Cliente GCG Clínica — configuração rápida
+
+> Fonte autoritativa: `assets/cad_clientes/cad_cliente_GCG.md`
+
+- **BUs:** `CPF | CNPJ` (CPF = PF dentista carnê leão; CNPJ = entidade PJ lucro presumido)
+- **`mes_corte_realizado`:** `2026-05`
+- **MapaAloc:** `GCG_MapaAloc.xlsx` — 166 categorias, 7 KPIs ativos
+- **Origem dos dados:** Conta Azul — dois exports (contas_a_pagar + contas_a_receber), extensão `.xls` mas conteúdo XLSX (`openpyxl`)
+- **BU via:** de-para conta bancária (`cad_depara_bu` em §6 do cad_cliente_GCG.md)
+- **f_Base:** 35 colunas (23 núcleo + 5 condicionais + 7 KPIs)
+- **Extractor:** `extractor_gcg.py` — **pendente** (9 questões abertas em `memory/gcg_extractor_questions.md`)
+
+### Abas do relatório (quando implementado)
+
+`DRE Gerencial` · `DFC` · `KPIs` · `f_Base` · `Lista` · `f_Erros` · `f_SaldoBancos` · `cad_cliente` · `check`
+
+## Guardrail GCG — RESTRIÇÃO ATIVA
+
+> ⛔ **NÃO alterar categorias nem a árvore DRE do `GCG_MapaAloc.xlsx` sem autorização expressa de James.**
+> Isso inclui renomear, reordenar, mesclar ou excluir qualquer categoria ou nível DRE existente.
+> Alterações permitidas sem autorização: colunas novas (DFC, KPIs, flags), ajustes de formato/layout.
+
 ## Guardrails de implementação
 
 > Resumo rápido — fonte autoritativa: `SDD/SRS_RegrasRelatPadrao.md` §6.
@@ -81,8 +106,8 @@ RelatPadrao/
 
 ## Pendências AB ativas
 
-- `f_SaldoBancos`: seed aplicado (Holding PJ/PF, 31/12/2022, valor 0) — preencher com saldos reais para DFC funcional; James fecha em paralelo
-- Diferença numérica fonte vs controle manual → fora de escopo; entregar com ressalva; James fecha em paralelo
+- `f_bancos/` ausente — criar `assets/dados/AB - AB Aeterno/f_bancos/AB_f_Bancos.xlsx` com histórico de saldos mensais (colunas: `data | nome_conta | BU | saldo` — SRS §4.2); DFC funciona com CAIXA INÍCIO = 0 até lá. James preenche em paralelo.
+- Diferença numérica fonte vs controle manual → fora de escopo; entregar com ressalva; James fecha em paralelo.
 
 ## Roadmap
 

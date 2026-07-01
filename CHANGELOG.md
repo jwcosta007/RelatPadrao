@@ -7,6 +7,16 @@ Mudanças de código rastreadas via `git log`.
 
 ## Especificação — Histórico de versões
 
+### v24 (30/jun/2026) — Implantação GCG: cadastro completo
+
+- `cad_cliente_GCG.json` criado — passa validação Pydantic (`_CadClienteConfig`).
+- `cad_cliente_GCG.md` v03 — campos completos: segmento Estética, BUs CPF/CNPJ,
+  5 condicionais ligadas (conta_bancaria, fornecedor_cliente, data_competencia,
+  data_vencimento, valor_original), cascade DRE em 5 estágios (sem Impostos sobre Resultado),
+  de-para conta bancária → BU com 14 contas mapeadas, shape f_Base 35 colunas (23+5+7).
+- `GCG_MapaAloc.xlsx` — 166 categorias, 26 colunas, 5 blocos, 7 KPIs ativos.
+  `kpi_cmv` com 4 Sim no mapa mas pendente ativação em código (P8).
+
 ### v23 (30/jun/2026) — Logging em arquivo e alinhamento de type hints
 
 - `etl.py`: `_setup_logging()` substitui `basicConfig`; grava em `logs/etl.log`
