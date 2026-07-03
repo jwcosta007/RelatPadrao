@@ -7,6 +7,17 @@ Mudanças de código rastreadas via `git log`.
 
 ## Especificação — Histórico de versões
 
+### v25 (03/jul/2026) — AB: novo formato de origem + f_bancos preenchido
+
+- `extractor_ab.py`: adaptado para ler o novo formato de export "consolidado" da AB —
+  primeira aba do arquivo (nome livre, ex. `Sheet1`), colunas já no schema final
+  (`data_caixa`, `historico`, `categoria`, `valor`, `bu`, `conta_bancaria`,
+  `fornecedor_cliente`, `tipo_registro`). Substitui o formato antigo (aba fixa `f_Lctos`,
+  colunas em português `Data`/`Histórico`/`Categoria`/`BU`/`Conta`/`Fornecedor-Cliente`/
+  `Tipo Registro`) — sem suporte a ambos, decisão de James (formato antigo descontinuado).
+- `assets/dados/AB - AB Aeterno/f_bancos/AB_f_Bancos.xlsx` preenchido por James — DFC AB
+  não depende mais do fallback CAIXA INÍCIO = 0.
+
 ### v24 (30/jun/2026) — Implantação GCG: cadastro completo
 
 - `cad_cliente_GCG.json` criado — passa validação Pydantic (`_CadClienteConfig`).

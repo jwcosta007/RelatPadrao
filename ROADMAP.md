@@ -14,13 +14,14 @@
 - ✅ **Nova arquitetura de dados de entrada** — `assets/dados/{SIGLA} - {Nome}/`; MapaAloc sem versão no nome; `f_Lctos/` como drop zone. ETL deriva caminhos por convenção (sem `path_mapa`/`path_lctos` no JSON). SRS §4.4.
 - ✅ **Verificação N3-único (DRE e DFC)** — `staging.check_mapa_n3_unico()` executada antes de qualquer carga; ETL para com erro claro se houver violação. SRS §6.1.
 - ✅ **Cliente AB Aeterno em produção** — DRE Gerencial, DFC, KPIs, f_Base, f_Erros, f_SaldoBancos, cad_cliente, Lista, check.
+- ✅ **AB — `f_bancos/` com saldos reais** — `assets/dados/AB - AB Aeterno/f_bancos/AB_f_Bancos.xlsx` preenchido por James; DFC não depende mais do fallback CAIXA INÍCIO = 0.
+- ✅ **AB — extractor adaptado ao formato consolidado** — `extractor_ab.py` agora lê a primeira aba do arquivo (nome livre) com colunas já no schema final (`data_caixa`, `historico`, `categoria`, `valor`, `bu`, `conta_bancaria`, `fornecedor_cliente`, `tipo_registro`), substituindo o formato antigo (aba `f_Lctos`, colunas em português). Sem suporte a formato antigo — decisão do James (03/jul/2026).
 
 ---
 
 ## Próxima iteração
 
 - **Implantação GCG Clínica:** ✅ `cad_cliente_GCG.json`/`.md` (v05) + `GCG_MapaAloc.xlsx` concluídos, 9 questões respondidas (inclui expansão do domínio `tipo_registro` para 5 valores — ver SRS §10.1), e `extractor_gcg.py` implementado — **PR #1 (`feature/extractor-gcg`) aberto, aguardando revisão/merge de James**, incluindo aprovação do débito técnico P12 (`cad_cliente_GCG.md` §9). Depois do merge: rodar `python etl.py GCG` contra dados reais pela primeira vez.
-- **AB — `f_bancos/` com saldos reais:** criar `assets/dados/AB - AB Aeterno/f_bancos/AB_f_Bancos.xlsx` com histórico de saldos mensais por conta/BU. O ETL já suporta a pasta por convenção (SRS §4.2); nenhuma mudança de código necessária. Elimina o CAIXA INÍCIO = 0 no DFC AB.
 - **Implantação demais clientes (ES, LA, OS):** aguardar validação GCG; cadastros base em `assets/cad_clientes/` já existem.
 - **Aba `check` — fórmulas de validação:** soma KPI vs cascata N3; `_sem_mapa = 0`; contador `f_Erros` (vermelho se > 0); bate colisão Realizado×Projeção; bate DFC caixa; BU duplo-check. Design em aberto — ver `SDD/SRS_RegrasRelatPadrao.md` §7.1.
   - **Pendência C:** IF de corte Realizado×Projeção sem rastreabilidade — builder escreve o IF mas não há verificação de que está em todas as células; a aba `check` é o remédio natural.

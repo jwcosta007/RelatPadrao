@@ -106,7 +106,6 @@ RelatPadrao/
 
 ## Pendências AB ativas
 
-- `f_bancos/` ausente — criar `assets/dados/AB - AB Aeterno/f_bancos/AB_f_Bancos.xlsx` com histórico de saldos mensais (colunas: `data | nome_conta | BU | saldo` — SRS §4.2); DFC funciona com CAIXA INÍCIO = 0 até lá. James preenche em paralelo.
 - Diferença numérica fonte vs controle manual → fora de escopo; entregar com ressalva; James fecha em paralelo.
 
 ## Roadmap
